@@ -16,16 +16,23 @@
  */
 package de.flapdoodle.guava;
 
-public abstract class Types {
+import java.util.Collection;
 
-	private Types() {
-		// no instance
+public class Partition<T> {
+
+	private final Collection<T> matching;
+	private final Collection<T> notMatching;
+
+	public Partition(Collection<T> matching, Collection<T> notMatching) {
+		this.matching = matching;
+		this.notMatching = notMatching;
 	}
 
-	public static <T> T defaultIfNull(T value, T defaultValue) {
-		return value != null
-				? value
-				: defaultValue;
+	public Collection<T> matching() {
+		return this.matching;
 	}
 
+	public Collection<T> notMatching() {
+		return this.notMatching;
+	}
 }

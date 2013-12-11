@@ -16,16 +16,12 @@
  */
 package de.flapdoodle.guava;
 
-public abstract class Types {
+import com.google.common.base.Function;
 
-	private Types() {
-		// no instance
+class NoTransformation<T> implements Function<T, T> {
+
+	@Override
+	public final T apply(T input) {
+		return input;
 	}
-
-	public static <T> T defaultIfNull(T value, T defaultValue) {
-		return value != null
-				? value
-				: defaultValue;
-	}
-
 }

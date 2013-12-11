@@ -16,16 +16,9 @@
  */
 package de.flapdoodle.guava;
 
-public abstract class Types {
+import java.util.Map;
 
-	private Types() {
-		// no instance
-	}
+interface MapCreator<K, V, M extends Map<K, V>> {
 
-	public static <T> T defaultIfNull(T value, T defaultValue) {
-		return value != null
-				? value
-				: defaultValue;
-	}
-
+	M newInstance();
 }

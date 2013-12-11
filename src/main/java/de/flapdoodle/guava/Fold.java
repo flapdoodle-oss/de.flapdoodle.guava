@@ -16,16 +16,7 @@
  */
 package de.flapdoodle.guava;
 
-public abstract class Types {
+public interface Fold<S, D> {
 
-	private Types() {
-		// no instance
-	}
-
-	public static <T> T defaultIfNull(T value, T defaultValue) {
-		return value != null
-				? value
-				: defaultValue;
-	}
-
+	D apply(D left, S right);
 }
