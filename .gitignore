@@ -4,3 +4,18 @@
 *.jar
 *.war
 *.ear
+
+# temp #
+target
+temp/
+velocity.log
+*~
+
+# eclipse settings #
+.classpath
+.project
+.settings
+.externalToolBuilders
+
+# idea settings #
+.idea
