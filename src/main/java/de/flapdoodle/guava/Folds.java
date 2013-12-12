@@ -18,6 +18,7 @@ package de.flapdoodle.guava;
 
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 
 import com.google.common.base.Function;
@@ -43,73 +44,75 @@ public abstract class Folds {
 		return ret;
 	}
 
-	public static <T, V, C extends Collection<? extends V>> Fold<T, ImmutableList<V>> asCollectingFold(final Function<T, C> valueTransformation) {
-		return new CollectingFold<T, V, C>() {
-
-			@Override
-			protected C apply(T right) {
-				return valueTransformation.apply(right);
-			}
-		};
+	public static <R, V> Fold<R, ImmutableList<V>> asListFold(final Function<R, ? extends Collection<? extends V>> valueTransformation) {
+		return new TransformationFold<R, V, ImmutableList<V>>(new ImmutableListFold<V>(), valueTransformation);
 	}
 
-	public static <T, V> Fold<T, Set<V>> asSetFold(final Function<T, V> valueTransformation) {
-		return new SetFold<T, V>() {
-
-			@Override
-			protected V apply(T right) {
-				return valueTransformation.apply(right);
-			}
-		};
+	public static <R, V> Fold<R, ImmutableSet<V>> asSetFold(final Function<R, ? extends Collection<? extends V>> valueTransformation) {
+		return new TransformationFold<R, V, ImmutableSet<V>>(new ImmutableSetFold<V>(), valueTransformation);
 	}
 
-	public static <T, V extends Enum<V>> Fold<T, EnumSet<V>> asEnumSetFold(final Function<T, V> valueTransformation) {
-		return new EnumSetFold<T, V>() {
-
-			@Override
-			protected V apply(T right) {
-				return valueTransformation.apply(right);
-			}
-		};
+	public static <R, V extends Enum<V>> Fold<R, EnumSet<V>> asEnumSetFold(final Function<R, ? extends Collection<? extends V>> valueTransformation) {
+		return new TransformationFold<R, V, EnumSet<V>>(new EnumSetFold<V>(), valueTransformation);
 	}
 
-	abstract static class CollectingFold<T, V, C extends Collection<? extends V>> implements Fold<T, ImmutableList<V>> {
+	interface CollectingFold<R, C extends Collection<R>> extends Fold<Collection<? extends R>, C> {
+		
+	}
+	
+	static class ImmutableListFold<R> implements CollectingFold<R, ImmutableList<R>> {
 
 		@Override
-		public final ImmutableList<V> apply(ImmutableList<V> left, T right) {
-			ImmutableList<V> rightAsCollection = ImmutableList.copyOf(apply(right));
-			return left != null
-					? ImmutableList.<V> builder().addAll(left).addAll(rightAsCollection).build()
-					: rightAsCollection;
+		public ImmutableList<R> apply(ImmutableList<R> left, Collection<? extends R> right) {
+			if (right.isEmpty()) return left;
+			if (left.isEmpty()) return ImmutableList.copyOf(right);
+			return ImmutableList.<R>builder().addAll(left).addAll(right).build();
 		}
-
-		protected abstract C apply(T right);
 	}
 
-	abstract static class SetFold<T, V> implements Fold<T, Set<V>> {
+	static class ImmutableSetFold<R> implements CollectingFold<R, ImmutableSet<R>> {
 
 		@Override
-		public final Set<V> apply(Set<V> left, T right) {
-			ImmutableSet<V> rightAsSet = ImmutableSet.of(apply(right));
-			return left != null
-					? ImmutableSet.copyOf(Sets.<V> union(left, rightAsSet))
-					: rightAsSet;
+		public ImmutableSet<R> apply(ImmutableSet<R> left, Collection<? extends R> right) {
+			if (right.isEmpty()) return left;
+			if (left.isEmpty()) return ImmutableSet.copyOf(right);
+			ImmutableSet<R> ret = ImmutableSet.<R>builder().addAll(left).addAll(right).build();
+			if (ret.size()<left.size()+right.size()) {
+				throw new IllegalArgumentException("colliding entries: "+left+"-"+right);
+			}
+			return ret;
 		}
-
-		protected abstract V apply(T right);
 	}
 
-	abstract static class EnumSetFold<T, V extends Enum<V>> implements Fold<T, EnumSet<V>> {
+	static class EnumSetFold<R extends Enum<R>> implements CollectingFold<R, EnumSet<R>> {
 
 		@Override
-		public final EnumSet<V> apply(EnumSet<V> left, T right) {
-			EnumSet<V> rightAsSet = EnumSet.of(apply(right));
-			return left != null
-					? EnumSet.copyOf(Sets.<V> union(left, rightAsSet))
-					: rightAsSet;
-		}
+		public EnumSet<R> apply(EnumSet<R> left, Collection<? extends R> right) {
+			if (right.isEmpty()) return left;
 
-		protected abstract V apply(T right);
+			EnumSet<R> ret = EnumSet.copyOf(left);
+			ret.addAll(right);
+			if (ret.size()<left.size()+right.size()) {
+				throw new IllegalArgumentException("colliding entries: "+left+"-"+right);
+			}
+			return ret;
+		}
+	}
+	
+	static class TransformationFold<R, D, C extends Collection<D>> implements Fold<R, C> {
+
+		private final CollectingFold<D, C> _fold;
+		private final Function<R, ? extends Collection<? extends D>> _transformation;
+
+		public TransformationFold(CollectingFold<D, C> fold, Function<R, ? extends Collection<? extends D>> transformation) {
+			_fold = fold;
+			_transformation = transformation;
+		}
+		
+		@Override
+		public C apply(C left, R right) {
+			return _fold.apply(left, _transformation.apply(right));
+		}
 	}
 
 	static class SimpleMappingFold<T, V> implements Fold<T, V> {

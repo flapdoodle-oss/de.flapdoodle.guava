@@ -44,11 +44,7 @@ public abstract class Transformations {
 
 	public static <S, D, C extends Collection<? extends D>> ImmutableList<D> flatmap(Collection<? extends S> source,
 			Function<? super S,C> transformation) {
-
-		Preconditions.checkNotNull(source, "source is null");
-		Preconditions.checkNotNull(transformation, "tranformation is null");
-
-		return Folds.foldLeft(source, Folds.asCollectingFold(transformation), null);
+		return Folds.foldLeft(source, Folds.asListFold(transformation), ImmutableList.<D>of());
 	}
 
 	public static <T> ImmutableList<T> flatmap(Collection<? extends Collection<? extends T>> collections) {
