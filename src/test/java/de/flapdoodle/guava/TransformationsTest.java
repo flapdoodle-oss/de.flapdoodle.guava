@@ -26,9 +26,10 @@ import java.util.Map;
 import org.junit.Test;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-
 
 public class TransformationsTest {
 
@@ -43,65 +44,135 @@ public class TransformationsTest {
 		assertTrue(Transformations.emptyIfNull(source).isEmpty());
 		assertTrue(source == Transformations.emptyIfNull(source));
 	}
-	
+
 	@Test
 	public void flatmapShouldGiveAllEntries() {
-		ImmutableList<String> result = Transformations.flatmap(Lists.newArrayList("A","B"), new Function<String, Collection<String>>() {
-			@Override
-			public Collection<String> apply(String input) {
-				return Lists.newArrayList(input,input,input);
-			}
-		});
-		
-		assertEquals("[A, A, A, B, B, B]",result.toString());
+		ImmutableList<String> result = Transformations.flatmap(Lists.newArrayList("A", "B"),
+				new Function<String, Collection<String>>() {
+
+					@Override
+					public Collection<String> apply(String input) {
+						return Lists.newArrayList(input, input, input);
+					}
+				});
+
+		assertEquals("[A, A, A, B, B, B]", result.toString());
 	}
 
 	@Test
 	public void flatmapShouldGiveAllEntriesFromLists() {
-		List<? extends List<String>> lists = ImmutableList.<List<String>>builder()
-				.add(Lists.newArrayList("A","B"))
-				.add(Lists.newArrayList("C","D","E"))
-				.build();
-		
+		List<? extends List<String>> lists = ImmutableList.<List<String>> builder().add(Lists.newArrayList("A", "B")).add(
+				Lists.newArrayList("C", "D", "E")).build();
+
 		ImmutableList<String> result = Transformations.flatmap(lists);
-		
-		assertEquals("[A, B, C, D, E]",result.toString());
+
+		assertEquals("[A, B, C, D, E]", result.toString());
 	}
-	
+
 	@Test
 	public void mapListToMap() {
-		Map<String, String> map = Transformations.map(Lists.newArrayList("Achim","Susi","Jochen"), new Function<String, String>() {
-			@Override
-			public String apply(String input) {
-				return input.substring(0,1);
-			}
-		});
-		
-		assertEquals(3,map.size());
-		assertEquals("Susi",map.get("S"));
+		Map<String, String> map = Transformations.map(Lists.newArrayList("Achim", "Susi", "Jochen"),
+				new Function<String, String>() {
+
+					@Override
+					public String apply(String input) {
+						return input.substring(0, 1);
+					}
+				});
+
+		assertEquals(3, map.size());
+		assertEquals("Susi", map.get("S"));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void mapListToMapShouldFailIfKeyCollides() {
-		Transformations.map(Lists.newArrayList("Achim","Susi","Jochen","Arnim"), new Function<String, String>() {
+		Transformations.map(Lists.newArrayList("Achim", "Susi", "Jochen", "Arnim"), new Function<String, String>() {
+
 			@Override
 			public String apply(String input) {
-				return input.substring(0,1);
+				return input.substring(0, 1);
 			}
 		});
 	}
 
 	@Test
 	public void mapListToMapWithFoldShouldGiveFoldedValuesInMap() {
-		Map<String, ? extends List<String>> map = Transformations.map(Lists.newArrayList("Achim","Susi","Jochen","Arnim"), new Function<String, String>() {
+		Map<String, ? extends List<String>> map = Transformations.map(
+				Lists.newArrayList("Achim", "Susi", "Jochen", "Arnim"), new Function<String, String>() {
+
+					@Override
+					public String apply(String input) {
+						return input.substring(0, 1);
+					}
+				}, Folds.asListFold(Transformations.<String> asCollection()));
+
+		assertEquals(3, map.size());
+		assertEquals("[Susi]", map.get("S").toString());
+		assertEquals("[Achim, Arnim]", map.get("A").toString());
+	}
+	
+	@Test
+	public void predicateWithTransformationIsPredicateWithDifferentType() {
+		Predicate<Integer> predicate = Transformations.map(Predicates.equalTo("12"),new Function<Integer, String>() {
 			@Override
-			public String apply(String input) {
-				return input.substring(0,1);
+			public String apply(Integer input) {
+				return input.toString();
 			}
-		},Folds.asListFold(Transformations.<String>asCollection()));
+		});
 		
-		assertEquals(3,map.size());
-		assertEquals("[Susi]",map.get("S").toString());
-		assertEquals("[Achim, Arnim]",map.get("A").toString());
+		assertTrue(predicate.apply(12));
+		assertFalse(predicate.apply(11));
+	}
+
+	@Test
+	public void firstOfShouldGiveEntriesOrLessIfCollectionIsSmaller() {
+		assertEquals(2,Transformations.firstOf(Lists.newArrayList("A","B"), 17).size());
+	}
+	
+	@Test
+	public void firstOfShouldGiveOptionalPresentIfCollectionIsNotEmpty() {
+		assertTrue(Transformations.firstOf(Lists.newArrayList("A","B")).isPresent());
+		assertFalse(Transformations.firstOf(Lists.newArrayList()).isPresent());
+		assertEquals("C", Transformations.firstOf(Lists.newArrayList("C","B")).get());
+	}
+	
+	@Test
+	public void partitionShouldSeparateMatchingFromOthers() {
+		Partition<Integer> partition = Transformations.partition(Lists.newArrayList(1, 2, 3, 4, 5, 6, 7),
+				new Predicate<Integer>() {
+
+					@Override
+					public boolean apply(Integer input) {
+						return input % 2 != 0;
+					}
+				});
+		
+		assertEquals("[1, 3, 5, 7]",partition.matching().toString());
+		assertEquals("[2, 4, 6]",partition.notMatching().toString());
+	}
+
+	@Test
+	public void splitInBoundsShouldGiveValidAnswers() {
+		Partition<String> partition = Transformations.split(Lists.newArrayList("A", "B", "C"), 1);
+		assertEquals("[A]", partition.matching().toString());
+		assertEquals("[B, C]", partition.notMatching().toString());
+
+		partition = Transformations.split(Lists.newArrayList("A", "B", "C"), 0);
+		assertEquals("[]", partition.matching().toString());
+		assertEquals("[A, B, C]", partition.notMatching().toString());
+
+		partition = Transformations.split(Lists.newArrayList("A", "B", "C"), 3);
+		assertEquals("[A, B, C]", partition.matching().toString());
+		assertEquals("[]", partition.notMatching().toString());
+	}
+
+	@Test
+	public void noopShouldDoNothing() {
+		assertEquals("foo", Transformations.noop().apply("foo"));
+	}
+
+	@Test
+	public void asCollectionShouldGiveCollectionForValue() {
+		assertEquals("[foo]", Transformations.asCollection().apply("foo").toString());
 	}
 }
