@@ -27,14 +27,14 @@ public abstract class MapTransformations {
 	}
 
 	public static <S, D, V, M> Map<D, M> transform(Map<S, V> map, final Function<? super S, D> keytransformation,
-			final Fold<? super V, M> valuetransformation) {
+			final Foldleft<? super V, M> valuetransformation) {
 		return Transformations.map(map.entrySet(), new Function<Map.Entry<S, V>, D>() {
 
 			@Override
 			public D apply(Map.Entry<S, V> input) {
 				return keytransformation.apply(input.getKey());
 			}
-		}, new Fold<Map.Entry<S, V>, M>() {
+		}, new Foldleft<Map.Entry<S, V>, M>() {
 
 			@Override
 			public M apply(M left, Map.Entry<S, V> right) {
@@ -49,7 +49,7 @@ public abstract class MapTransformations {
 
 	public static <S, D, V, M> Map<D, M> transform(Map<S, V> map, final Function<? super S, D> keytransformation,
 			final Function<? super V, M> valuetransformation) {
-		return transform(map, keytransformation, new Folds.SimpleMappingFold<V, M>(valuetransformation));
+		return transform(map, keytransformation, new Folds.ValueFromLeftIllegalFold<V, M>(valuetransformation));
 	}
 
 	public static <S, D, V> Map<D, V> transformKeys(Map<S, V> map, final Function<? super S, D> keytransformation) {

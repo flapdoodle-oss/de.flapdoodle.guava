@@ -16,7 +16,7 @@
  */
 package de.flapdoodle.guava;
 
-public interface Fold<R, L> {
+public interface Foldleft<R, L> {
 
 	L apply(L left, R right);
 }

@@ -33,7 +33,7 @@ public abstract class Folds {
 		// no instance
 	}
 
-	public static <S, D> D foldLeft(Collection<? extends S> collection, Fold<? super S, D> foldFunction, D leftValue) {
+	public static <S, D> D foldLeft(Collection<? extends S> collection, Foldleft<? super S, D> foldFunction, D leftValue) {
 		Preconditions.checkNotNull(collection, "collection is null");
 		Preconditions.checkNotNull(foldFunction, "foldFunction is null");
 		
@@ -44,19 +44,19 @@ public abstract class Folds {
 		return ret;
 	}
 
-	public static <R, V> Fold<R, ImmutableList<V>> asListFold(final Function<R, ? extends Collection<? extends V>> valueTransformation) {
+	public static <R, V> Foldleft<R, ImmutableList<V>> asListFold(final Function<R, ? extends Collection<? extends V>> valueTransformation) {
 		return new TransformationFold<R, V, ImmutableList<V>>(new ImmutableListFold<V>(), valueTransformation);
 	}
 
-	public static <R, V> Fold<R, ImmutableSet<V>> asSetFold(final Function<R, ? extends Collection<? extends V>> valueTransformation) {
+	public static <R, V> Foldleft<R, ImmutableSet<V>> asSetFold(final Function<R, ? extends Collection<? extends V>> valueTransformation) {
 		return new TransformationFold<R, V, ImmutableSet<V>>(new ImmutableSetFold<V>(), valueTransformation);
 	}
 
-	public static <R, V extends Enum<V>> Fold<R, EnumSet<V>> asEnumSetFold(final Function<R, ? extends Collection<? extends V>> valueTransformation) {
-		return new TransformationFold<R, V, EnumSet<V>>(new EnumSetFold<V>(), valueTransformation);
+	public static <R, V extends Enum<V>> Foldleft<R, EnumSet<V>> asEnumSetFold(Class<V> enumType, final Function<R, ? extends Collection<? extends V>> valueTransformation) {
+		return new TransformationFold<R, V, EnumSet<V>>(new EnumSetFold<V>(enumType), valueTransformation);
 	}
 
-	interface CollectingFold<R, C extends Collection<R>> extends Fold<Collection<? extends R>, C> {
+	interface CollectingFold<R, C extends Collection<R>> extends Foldleft<Collection<? extends R>, C> {
 		
 	}
 	
@@ -64,6 +64,8 @@ public abstract class Folds {
 
 		@Override
 		public ImmutableList<R> apply(ImmutableList<R> left, Collection<? extends R> right) {
+			left=Types.defaultIfNull(left,ImmutableList.<R>of());
+			
 			if (right.isEmpty()) return left;
 			if (left.isEmpty()) return ImmutableList.copyOf(right);
 			return ImmutableList.<R>builder().addAll(left).addAll(right).build();
@@ -74,10 +76,18 @@ public abstract class Folds {
 
 		@Override
 		public ImmutableSet<R> apply(ImmutableSet<R> left, Collection<? extends R> right) {
+			left=Types.defaultIfNull(left,ImmutableSet.<R>of());
+			
 			if (right.isEmpty()) return left;
-			if (left.isEmpty()) return ImmutableSet.copyOf(right);
-			ImmutableSet<R> ret = ImmutableSet.<R>builder().addAll(left).addAll(right).build();
-			if (ret.size()<left.size()+right.size()) {
+			
+			ImmutableSet<R> ret;
+			
+			if (left.isEmpty()) {
+				ret=ImmutableSet.copyOf(right);
+			} else {
+				ret = ImmutableSet.<R>builder().addAll(left).addAll(right).build();
+			}
+			if (ret.size()<(left.size()+right.size())) {
 				throw new IllegalArgumentException("colliding entries: "+left+"-"+right);
 			}
 			return ret;
@@ -86,8 +96,16 @@ public abstract class Folds {
 
 	static class EnumSetFold<R extends Enum<R>> implements CollectingFold<R, EnumSet<R>> {
 
+		private final Class<R> _enumType;
+
+		public EnumSetFold(Class<R> enumType) {
+			_enumType = enumType;
+		}
+
 		@Override
 		public EnumSet<R> apply(EnumSet<R> left, Collection<? extends R> right) {
+			left=Types.defaultIfNull(left,EnumSet.noneOf(_enumType));
+			
 			if (right.isEmpty()) return left;
 
 			EnumSet<R> ret = EnumSet.copyOf(left);
@@ -99,7 +117,7 @@ public abstract class Folds {
 		}
 	}
 	
-	static class TransformationFold<R, D, C extends Collection<D>> implements Fold<R, C> {
+	static class TransformationFold<R, D, C extends Collection<D>> implements Foldleft<R, C> {
 
 		private final CollectingFold<D, C> _fold;
 		private final Function<R, ? extends Collection<? extends D>> _transformation;
@@ -115,11 +133,11 @@ public abstract class Folds {
 		}
 	}
 
-	static class SimpleMappingFold<T, V> implements Fold<T, V> {
+	static class ValueFromLeftIllegalFold<T, V> implements Foldleft<T, V> {
 
 		private final Function<? super T, V> valueTransformation;
 
-		public SimpleMappingFold(Function<? super T, V> valueTransformation) {
+		public ValueFromLeftIllegalFold(Function<? super T, V> valueTransformation) {
 			this.valueTransformation = valueTransformation;
 		}
 

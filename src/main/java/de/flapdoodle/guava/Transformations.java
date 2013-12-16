@@ -67,7 +67,7 @@ public abstract class Transformations {
 	}
 
 	public static <K, V, T> Map<K, V> map(Collection<T> collection, Function<? super T, K> keyTransformation,
-			Fold<? super T, V> valueFold) {
+			Foldleft<? super T, V> valueFold) {
 		return map(MapCreators.<K, V> linkedHashMap(), collection, keyTransformation, valueFold);
 	}
 
@@ -82,17 +82,17 @@ public abstract class Transformations {
 	}
 
 	public static <K extends Enum<K>, V, T> EnumMap<K, V> map(Class<K> enumType, Collection<T> collection,
-			Function<? super T, K> keyTransformation, Fold<? super T, V> valueFold) {
+			Function<? super T, K> keyTransformation, Foldleft<? super T, V> valueFold) {
 		return map(MapCreators.<K,V>enumMap(enumType), collection, keyTransformation, valueFold);
 	}
 
 	private static <K, V, T, M extends Map<K, V>> M map(MapCreator<K, V, M> mapCreator, Collection<T> collection,
 			Function<? super T, K> keyTransformation, Function<? super T, V> valueTransformation) {
-		return map(mapCreator, collection, keyTransformation, new Folds.SimpleMappingFold<T, V>(valueTransformation));
+		return map(mapCreator, collection, keyTransformation, new Folds.ValueFromLeftIllegalFold<T, V>(valueTransformation));
 	}
 
 	private static <K, V, T, M extends Map<K, V>> M map(MapCreator<K, V, M> mapCreator, Collection<T> collection,
-			Function<? super T, K> keyTransformation, Fold<? super T, V> valueFold) {
+			Function<? super T, K> keyTransformation, Foldleft<? super T, V> valueFold) {
 		M map = mapCreator.newInstance();
 		for (T value : collection) {
 			K key = keyTransformation.apply(value);
@@ -135,4 +135,15 @@ public abstract class Transformations {
 		return new Partition<T>(asList.subList(0, index), asList.subList(index, asList.size()));
 	}
 
+	public static <V> Function<V, V> noop() {
+		return new NoTransformation<V>();
+	}
+	
+	public static <V> Function<V, Collection<? extends V>> asCollection() {
+		return new Function<V, Collection<? extends V>>() {
+			public java.util.Collection<? extends V> apply(V input) {
+				return ImmutableList.of(input);
+			};
+		};
+	}
 }
