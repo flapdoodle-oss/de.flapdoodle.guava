@@ -28,7 +28,9 @@ import org.junit.Test;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
+import de.flapdoodle.guava.Foldleft;
 import de.flapdoodle.guava.Folds;
 import de.flapdoodle.guava.Transformations;
 
@@ -39,8 +41,10 @@ public class TestExampleReadMeCode {
 	// We did some minor extensions based on guava stuff which can be usefull in some situations. These extensions are not
 	// optimized for speed or memory usage.
 	// <-
-	
-	// #### Convert a list into a map
+
+	// #### Convert lists into maps
+
+	// ##### Convert a list into a 1:1 map 
 	@Test
 	public void listToMap() {
 		// ->
@@ -49,13 +53,15 @@ public class TestExampleReadMeCode {
 		orders = Lists.newArrayList(new Order(1), new Order(2), new Order(4));
 		// ->
 		// ...
-		Map<Integer, Order> orderMap = Transformations.map(orders, new Function<Order, Integer>() {
+		Function<Order, Integer> keytransformation = new Function<Order, Integer>() {
 
 			@Override
 			public Integer apply(Order order) {
 				return order.getId();
 			}
-		});
+		};
+
+		Map<Integer, Order> orderMap = Transformations.map(orders, keytransformation);
 
 		Order order = orderMap.get(2);
 		// ...
@@ -63,28 +69,31 @@ public class TestExampleReadMeCode {
 		assertNotNull(order);
 	}
 
-	// #### Convert a list into a map of lists
+	// ##### Convert a list into a map of lists
 	@Test
 	public void nameMap() {
 		// ->
 		// ...
-		List<String> names = Lists.newArrayList("Achim", "Albert","Susi","Sonja","Bert");
-		
+		List<String> names = Lists.newArrayList("Achim", "Albert", "Susi", "Sonja", "Bert");
+
 		Function<String, Character> keytransformation = new Function<String, Character>() {
+
 			@Override
 			public Character apply(String name) {
 				return name.charAt(0);
 			}
 		};
-		
-		Map<Character, ImmutableList<String>> nameMap = Transformations.map(names, keytransformation, Folds.asListFold(Transformations.<String>asCollection()));
-		
+
+		Map<Character, ImmutableList<String>> nameMap = Transformations.map(names, keytransformation,
+				Folds.asListFold(Transformations.<String> asCollection()));
+
 		ImmutableList<String> namesWithA = nameMap.get('A');
+
 		// ...
 		// <-
-		assertEquals("[Achim, Albert]",namesWithA.toString());
+		assertEquals("[Achim, Albert]", namesWithA.toString());
 	}
-	
+
 	static class Order {
 
 		int _id;
@@ -96,5 +105,23 @@ public class TestExampleReadMeCode {
 		public int getId() {
 			return _id;
 		}
+	}
+
+	// #### Foldleft
+
+	@Test
+	public void foldLeft() {
+		// ->
+		// ...
+		int result = Folds.foldLeft(Lists.newArrayList(1,2,3,4,5,6), new Foldleft<Integer, Integer>() {
+			@Override
+			public Integer apply(Integer left, Integer right) {
+				return left+right;
+			}
+		}, 0);
+		
+		// ...
+		// <-
+		assertEquals(21, result);
 	}
 }
