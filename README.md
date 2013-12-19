@@ -6,6 +6,24 @@ We are now a github organisation. You are invited to participate.
 
 minor guava extensions
 
+### Maven
+
+Stable (Maven Central Repository, Released: 19.12.2013 - wait 24hrs for [maven central](http://repo1.maven.org/maven2/de/flapdoodle/guava/de.flapdoodle.guava/maven-metadata.xml))
+
+	<dependency>
+		<groupId>de.flapdoodle.embed</groupId>
+		<artifactId>de.flapdoodle.guava</artifactId>
+		<version>1.0</version>
+	</dependency>
+
+Snapshots (Repository http://oss.sonatype.org/content/repositories/snapshots)
+
+	<dependency>
+		<groupId>de.flapdoodle.embed</groupId>
+		<artifactId>de.flapdoodle.guava</artifactId>
+		<version>1.1-SNAPSHOT</version>
+	</dependency>
+
 ### Usage
 
 We did some minor extensions based on guava stuff which can be usefull in some situations. These extensions are not
