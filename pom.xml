@@ -11,7 +11,7 @@
 	<groupId>de.flapdoodle.guava</groupId>
 	<artifactId>de.flapdoodle.guava</artifactId>
 	<name>Flapdoodle Guava Extensions</name>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.0</version>
 
 	<description>minor extensions for guava</description>
 	<url>http://github.com/flapdoodle-oss/de.flapdoodle.guava</url>
@@ -124,9 +124,9 @@
                         <lic.year>2011</lic.year>
                         <lic.email>michael@mosmann.de</lic.email>
                         <lic.username>Michael Mosmann</lic.username>
-                        <lic.email2></lic.email2>
-                        <lic.username2></lic.username2>
-                        <lic.developers></lic.developers>
+                        <lic.email2 />
+                        <lic.username2 />
+                        <lic.developers />
                     </properties>
                     <encoding>UTF-8</encoding>
                     <!--
