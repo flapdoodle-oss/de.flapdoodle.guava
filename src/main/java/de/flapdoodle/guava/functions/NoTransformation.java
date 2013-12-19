@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.flapdoodle.guava;
+package de.flapdoodle.guava.functions;
 
 import com.google.common.base.Function;
 
-class NoTransformation<T> implements Function<T, T> {
+public final class NoTransformation<T> implements Function<T, T> {
 
-	@Override
-	public final T apply(T input) {
-		return input;
-	}
+    @Override
+    public final T apply(T input) {
+        return input;
+    }
 }

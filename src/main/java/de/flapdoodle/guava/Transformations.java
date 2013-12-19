@@ -32,6 +32,9 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
+import de.flapdoodle.guava.functions.NoTransformation;
+import de.flapdoodle.guava.functions.ValueToCollection;
+
 public abstract class Transformations {
 
 	private Transformations() {
@@ -43,8 +46,8 @@ public abstract class Transformations {
 	}
 
 	public static <S, D, C extends Collection<? extends D>> ImmutableList<D> flatmap(Collection<? extends S> source,
-			Function<? super S,C> transformation) {
-		return Folds.foldLeft(source, Folds.asListFold(transformation), ImmutableList.<D>of());
+			Function<? super S, C> transformation) {
+		return Folds.foldLeft(source, Folds.asListFold(transformation), ImmutableList.<D> of());
 	}
 
 	public static <T> ImmutableList<T> flatmap(Collection<? extends Collection<? extends T>> collections) {
@@ -78,12 +81,12 @@ public abstract class Transformations {
 
 	public static <K extends Enum<K>, V, T> EnumMap<K, V> map(Class<K> enumType, Collection<T> collection,
 			Function<? super T, K> keyTransformation, Function<? super T, V> valueTransformation) {
-		return map(MapCreators.<K,V>enumMap(enumType), collection, keyTransformation, valueTransformation);
+		return map(MapCreators.<K, V> enumMap(enumType), collection, keyTransformation, valueTransformation);
 	}
 
 	public static <K extends Enum<K>, V, T> EnumMap<K, V> map(Class<K> enumType, Collection<T> collection,
 			Function<? super T, K> keyTransformation, Foldleft<? super T, V> valueFold) {
-		return map(MapCreators.<K,V>enumMap(enumType), collection, keyTransformation, valueFold);
+		return map(MapCreators.<K, V> enumMap(enumType), collection, keyTransformation, valueFold);
 	}
 
 	private static <K, V, T, M extends Map<K, V>> M map(MapCreator<K, V, M> mapCreator, Collection<T> collection,
@@ -130,20 +133,20 @@ public abstract class Transformations {
 
 	public static <T> Partition<T> split(Collection<T> source, int index) {
 		List<T> asList = ImmutableList.copyOf(source);
-		Preconditions.checkArgument(index>=0,"index < 0");
-		Preconditions.checkArgument(index<=asList.size(),"index > size");
+		Preconditions.checkArgument(index >= 0, "index < 0");
+		Preconditions.checkArgument(index <= asList.size(), "index > size");
 		return new Partition<T>(asList.subList(0, index), asList.subList(index, asList.size()));
 	}
 
 	public static <V> Function<V, V> noop() {
 		return new NoTransformation<V>();
 	}
-	
+
 	public static <V> Function<V, Collection<? extends V>> asCollection() {
-		return new Function<V, Collection<? extends V>>() {
-			public java.util.Collection<? extends V> apply(V input) {
-				return ImmutableList.of(input);
-			};
-		};
+		return new ValueToCollection<V>();
+	}
+
+	public static <S, D> Function<S, Collection<? extends D>> asCollection(Function<S, D> transformation) {
+		return Functions.compose(new ValueToCollection<D>(), transformation);
 	}
 }

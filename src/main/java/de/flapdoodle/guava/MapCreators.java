@@ -27,14 +27,14 @@ public abstract class MapCreators {
 		// no instance
 	}
 
-	public static <K extends Enum<K>,V> MapCreator<K, V, EnumMap<K, V>> enumMap(Class<K> type) {
+	public static <K extends Enum<K>, V> MapCreator<K, V, EnumMap<K, V>> enumMap(Class<K> type) {
 		return new EnumMapCreator<K, V>(type);
 	}
 
-	public static <K,V> MapCreator<K, V, Map<K, V>> linkedHashMap() {
+	public static <K, V> MapCreator<K, V, Map<K, V>> linkedHashMap() {
 		return new LinkedHashMapCreator<K, V>();
 	}
-	
+
 	private static final class EnumMapCreator<K extends Enum<K>, V> implements MapCreator<K, V, EnumMap<K, V>> {
 
 		private final Class<K> type;

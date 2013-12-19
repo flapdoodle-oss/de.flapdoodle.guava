@@ -36,7 +36,7 @@ public abstract class Folds {
 	public static <S, D> D foldLeft(Collection<? extends S> collection, Foldleft<? super S, D> foldFunction, D leftValue) {
 		Preconditions.checkNotNull(collection, "collection is null");
 		Preconditions.checkNotNull(foldFunction, "foldFunction is null");
-		
+
 		D ret = leftValue;
 		for (S value : collection) {
 			ret = foldFunction.apply(ret, value);
@@ -44,31 +44,36 @@ public abstract class Folds {
 		return ret;
 	}
 
-	public static <R, V> Foldleft<R, ImmutableList<V>> asListFold(final Function<R, ? extends Collection<? extends V>> valueTransformation) {
+	public static <R, V> Foldleft<R, ImmutableList<V>> asListFold(
+			final Function<R, ? extends Collection<? extends V>> valueTransformation) {
 		return new TransformationFold<R, V, ImmutableList<V>>(new ImmutableListFold<V>(), valueTransformation);
 	}
 
-	public static <R, V> Foldleft<R, ImmutableSet<V>> asSetFold(final Function<R, ? extends Collection<? extends V>> valueTransformation) {
+	public static <R, V> Foldleft<R, ImmutableSet<V>> asSetFold(
+			final Function<R, ? extends Collection<? extends V>> valueTransformation) {
 		return new TransformationFold<R, V, ImmutableSet<V>>(new ImmutableSetFold<V>(), valueTransformation);
 	}
 
-	public static <R, V extends Enum<V>> Foldleft<R, EnumSet<V>> asEnumSetFold(Class<V> enumType, final Function<R, ? extends Collection<? extends V>> valueTransformation) {
+	public static <R, V extends Enum<V>> Foldleft<R, EnumSet<V>> asEnumSetFold(Class<V> enumType,
+			final Function<R, ? extends Collection<? extends V>> valueTransformation) {
 		return new TransformationFold<R, V, EnumSet<V>>(new EnumSetFold<V>(enumType), valueTransformation);
 	}
 
 	interface CollectingFold<R, C extends Collection<R>> extends Foldleft<Collection<? extends R>, C> {
-		
+
 	}
-	
+
 	static class ImmutableListFold<R> implements CollectingFold<R, ImmutableList<R>> {
 
 		@Override
 		public ImmutableList<R> apply(ImmutableList<R> left, Collection<? extends R> right) {
-			left=Types.defaultIfNull(left,ImmutableList.<R>of());
-			
-			if (right.isEmpty()) return left;
-			if (left.isEmpty()) return ImmutableList.copyOf(right);
-			return ImmutableList.<R>builder().addAll(left).addAll(right).build();
+			left = Types.defaultIfNull(left, ImmutableList.<R> of());
+
+			if (right.isEmpty())
+				return left;
+			if (left.isEmpty())
+				return ImmutableList.copyOf(right);
+			return ImmutableList.<R> builder().addAll(left).addAll(right).build();
 		}
 	}
 
@@ -76,19 +81,20 @@ public abstract class Folds {
 
 		@Override
 		public ImmutableSet<R> apply(ImmutableSet<R> left, Collection<? extends R> right) {
-			left=Types.defaultIfNull(left,ImmutableSet.<R>of());
-			
-			if (right.isEmpty()) return left;
-			
+			left = Types.defaultIfNull(left, ImmutableSet.<R> of());
+
+			if (right.isEmpty())
+				return left;
+
 			ImmutableSet<R> ret;
-			
+
 			if (left.isEmpty()) {
-				ret=ImmutableSet.copyOf(right);
+				ret = ImmutableSet.copyOf(right);
 			} else {
-				ret = ImmutableSet.<R>builder().addAll(left).addAll(right).build();
+				ret = ImmutableSet.<R> builder().addAll(left).addAll(right).build();
 			}
-			if (ret.size()<(left.size()+right.size())) {
-				throw new IllegalArgumentException("colliding entries: "+left+"-"+right);
+			if (ret.size() < (left.size() + right.size())) {
+				throw new IllegalArgumentException("colliding entries: " + left + "-" + right);
 			}
 			return ret;
 		}
@@ -104,19 +110,20 @@ public abstract class Folds {
 
 		@Override
 		public EnumSet<R> apply(EnumSet<R> left, Collection<? extends R> right) {
-			left=Types.defaultIfNull(left,EnumSet.noneOf(_enumType));
-			
-			if (right.isEmpty()) return left;
+			left = Types.defaultIfNull(left, EnumSet.noneOf(_enumType));
+
+			if (right.isEmpty())
+				return left;
 
 			EnumSet<R> ret = EnumSet.copyOf(left);
 			ret.addAll(right);
-			if (ret.size()<left.size()+right.size()) {
-				throw new IllegalArgumentException("colliding entries: "+left+"-"+right);
+			if (ret.size() < left.size() + right.size()) {
+				throw new IllegalArgumentException("colliding entries: " + left + "-" + right);
 			}
 			return ret;
 		}
 	}
-	
+
 	static class TransformationFold<R, D, C extends Collection<D>> implements Foldleft<R, C> {
 
 		private final CollectingFold<D, C> _fold;
@@ -126,7 +133,7 @@ public abstract class Folds {
 			_fold = fold;
 			_transformation = transformation;
 		}
-		
+
 		@Override
 		public C apply(C left, R right) {
 			return _fold.apply(left, _transformation.apply(right));

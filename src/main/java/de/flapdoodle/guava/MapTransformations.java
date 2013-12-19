@@ -20,6 +20,8 @@ import java.util.Map;
 
 import com.google.common.base.Function;
 
+import de.flapdoodle.guava.functions.NoTransformation;
+
 public abstract class MapTransformations {
 
 	private MapTransformations() {
