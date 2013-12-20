@@ -84,10 +84,10 @@ public class TestExampleReadMeCode {
 			}
 		};
 
-		Map<Character, ImmutableList<String>> nameMap = Transformations.map(names, keytransformation,
+		Map<Character, ImmutableList<? extends String>> nameMap = Transformations.map(names, keytransformation,
 				Folds.asListFold(Transformations.<String> asCollection()));
 
-		ImmutableList<String> namesWithA = nameMap.get('A');
+		ImmutableList<? extends String> namesWithA = nameMap.get('A');
 
 		// ...
 		// <-

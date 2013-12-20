@@ -45,12 +45,12 @@ public abstract class Transformations {
 		return Types.defaultIfNull(source, Collections.<T> emptyList());
 	}
 
-	public static <S, D, C extends Collection<? extends D>> ImmutableList<D> flatmap(Collection<? extends S> source,
+	public static <S, D, C extends Collection<? extends D>> ImmutableList<? extends D> flatmap(Collection<? extends S> source,
 			Function<? super S, C> transformation) {
 		return Folds.foldLeft(source, Folds.asListFold(transformation), ImmutableList.<D> of());
 	}
 
-	public static <T> ImmutableList<T> flatmap(Collection<? extends Collection<? extends T>> collections) {
+	public static <T> ImmutableList<? extends T> flatmap(Collection<? extends Collection<? extends T>> collections) {
 		return flatmap(collections, new Function<Collection<? extends T>, Collection<? extends T>>() {
 
 			@Override

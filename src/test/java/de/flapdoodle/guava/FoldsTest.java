@@ -34,6 +34,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import de.flapdoodle.guava.Folds.CollectingFold;
+import de.flapdoodle.guava.FoldsTest.TestPair;
 
 public class FoldsTest {
 
@@ -72,35 +73,35 @@ public class FoldsTest {
 
 	@Test
 	public void transformationToCollectionAsListFoldShouldFoldToList() {
-		Foldleft<String, ImmutableList<String>> asListFold = Folds.asListFold(new Function<String, Collection<? extends String>>() {
+		Foldleft<String, ImmutableList<? extends String>> asListFold = Folds.asListFold(new Function<String, Collection<? extends String>>() {
 			@Override
 			public Collection<? extends String> apply(String input) {
 				return Lists.newArrayList("before",input,"after");
 			}
 		});
 		
-		ImmutableList<String> result = asListFold.apply(ImmutableList.<String>of(), "X");
+		ImmutableList<? extends String> result = asListFold.apply(ImmutableList.<String>of(), "X");
 		
 		assertEquals("[before, X, after]", result.toString());
 	}
 
 	@Test
 	public void transformationToCollectionAsSetFoldShouldFoldToSet() {
-		Foldleft<String, ImmutableSet<String>> asSetFold = Folds.asSetFold(new Function<String, Collection<? extends String>>() {
+		Foldleft<String, ImmutableSet<? extends String>> asSetFold = Folds.asSetFold(new Function<String, Collection<? extends String>>() {
 			@Override
 			public Collection<? extends String> apply(String input) {
 				return Lists.newArrayList("before",input,"after");
 			}
 		});
 		
-		ImmutableSet<String> result = asSetFold.apply(ImmutableSet.<String>of(), "X");
+		ImmutableSet<? extends String> result = asSetFold.apply(ImmutableSet.<String>of(), "X");
 		
 		assertEquals("[before, X, after]", result.toString());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void transformationToCollectionAsSetFoldShouldFailIfCollision() {
-		Foldleft<String, ImmutableSet<String>> asSetFold = Folds.asSetFold(new Function<String, Collection<? extends String>>() {
+		Foldleft<String, ImmutableSet<? extends String>> asSetFold = Folds.asSetFold(new Function<String, Collection<? extends String>>() {
 			@Override
 			public Collection<? extends String> apply(String input) {
 				return Lists.newArrayList(input,input);
@@ -151,7 +152,7 @@ public class FoldsTest {
 		foldUseCases(new Folds.EnumSetFold<DummyEnum>(DummyEnum.class), enumsetTestSet());
 	}
 
-	private <R, C extends Collection<R>> void foldUseCases(CollectingFold<R, C> fold, FoldTestset<R, C> testSet) {
+	private <R, C extends Collection<? extends R>> void foldUseCases(CollectingFold<R, C> fold, FoldTestset<R, C> testSet) {
 		TestPair<R, C> empty = testSet.empty();
 		assertEquals("foldOfEmptyIsEmpty", empty.result(), fold.apply(empty.left(), empty.right()));
 		for (TestPair<R, C> filled : testSet.filled()) {
@@ -168,28 +169,28 @@ public class FoldsTest {
 		}
 	}
 
-	static FoldTestset<String, ImmutableList<String>> listTestSet() {
-		TestPair<String, ImmutableList<String>> empty = TestPair.of(ImmutableList.<String> of(),
+	static FoldTestset<String, ImmutableList<? extends String>> listTestSet() {
+		TestPair<String, ImmutableList<? extends String>> empty = TestPair.of((ImmutableList<? extends String>) ImmutableList.<String> of(),
 				Collections.<String> emptyList(), ImmutableList.<String> of());
 
-		Optional<TestPair<String, ImmutableList<String>>> colliding = Optional.<TestPair<String, ImmutableList<String>>> absent();
+		Optional<TestPair<String, ImmutableList<? extends String>>> colliding = Optional.<TestPair<String, ImmutableList<? extends String>>> absent();
 
-		return new FoldTestset<String, ImmutableList<String>>(empty, colliding, TestPair.of(ImmutableList.of("foo"),
-				Lists.<String> newArrayList(), ImmutableList.of("foo")), TestPair.of(ImmutableList.<String> of(),
-				Lists.newArrayList("bar"), ImmutableList.of("bar")), TestPair.of(ImmutableList.of("foo"),
+		return new FoldTestset<String, ImmutableList<? extends String>>(empty, colliding, (TestPair<String, ImmutableList<? extends String>>) TestPair.of((ImmutableList<? extends String>) ImmutableList.<String>of("foo"),
+				Lists.<String> newArrayList(), ImmutableList.of("foo")), TestPair.of((ImmutableList<? extends String>) ImmutableList.<String> of(),
+				Lists.newArrayList("bar"), ImmutableList.of("bar")), TestPair.of((ImmutableList<? extends String>) ImmutableList.of("foo"),
 				Lists.newArrayList("bar"), ImmutableList.of("foo", "bar")));
 	}
 
-	static FoldTestset<String, ImmutableSet<String>> setTestSet() {
-		TestPair<String, ImmutableSet<String>> empty = TestPair.of(ImmutableSet.<String> of(),
+	static FoldTestset<String, ImmutableSet<? extends String>> setTestSet() {
+		TestPair<String, ImmutableSet<? extends String>> empty = TestPair.of((ImmutableSet<? extends String>) ImmutableSet.<String> of(),
 				Collections.<String> emptyList(), ImmutableSet.<String> of());
 
-		Optional<TestPair<String, ImmutableSet<String>>> colliding = Optional.<TestPair<String, ImmutableSet<String>>> of(TestPair.of(
-				ImmutableSet.of("foo"), Sets.newHashSet("foo"), ImmutableSet.of("foo")));
+		Optional<TestPair<String, ImmutableSet<? extends String>>> colliding = Optional.<TestPair<String, ImmutableSet<? extends String>>> of(TestPair.of(
+				(ImmutableSet<? extends String>) ImmutableSet.of("foo"), Sets.newHashSet("foo"), ImmutableSet.of("foo")));
 
-		return new FoldTestset<String, ImmutableSet<String>>(empty, colliding, TestPair.of(ImmutableSet.of("foo"),
-				Sets.<String> newHashSet(), ImmutableSet.of("foo")), TestPair.of(ImmutableSet.<String> of(),
-				Sets.newHashSet("bar"), ImmutableSet.of("bar")), TestPair.of(ImmutableSet.of("foo"), Sets.newHashSet("bar"),
+		return new FoldTestset<String, ImmutableSet<? extends String>>(empty, colliding, TestPair.of((ImmutableSet<? extends String>) ImmutableSet.of("foo"),
+				Sets.<String> newHashSet(), ImmutableSet.of("foo")), TestPair.of((ImmutableSet<? extends String>) ImmutableSet.<String> of(),
+				Sets.newHashSet("bar"), ImmutableSet.of("bar")), TestPair.of((ImmutableSet<? extends String>) ImmutableSet.of("foo"), Sets.newHashSet("bar"),
 				ImmutableSet.of("foo", "bar")));
 	}
 
@@ -206,7 +207,7 @@ public class FoldsTest {
 				Sets.newHashSet(DummyEnum.B), EnumSet.of(DummyEnum.A, DummyEnum.B)));
 	}
 
-	static class FoldTestset<R, F extends Collection<R>> {
+	static class FoldTestset<R, F extends Collection<? extends R>> {
 
 		private final TestPair<R, F> empty;
 		private final ImmutableList<TestPair<R, F>> filled;
@@ -232,7 +233,7 @@ public class FoldsTest {
 
 	}
 
-	static class TestPair<R, F extends Collection<R>> {
+	static class TestPair<R, F extends Collection<? extends R>> {
 
 		private final F left;
 		private final Collection<? extends R> right;
@@ -256,7 +257,7 @@ public class FoldsTest {
 			return result;
 		}
 
-		public static <R, F extends Collection<R>> TestPair<R, F> of(F left, Collection<? extends R> right, F result) {
+		public static <R, F extends Collection<? extends R>> TestPair<R, F> of(F left, Collection<? extends R> right, F result) {
 			return new TestPair<R, F>(left, right, result);
 		}
 

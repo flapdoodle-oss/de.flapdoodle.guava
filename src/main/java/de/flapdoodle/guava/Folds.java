@@ -44,14 +44,14 @@ public abstract class Folds {
 		return ret;
 	}
 
-	public static <R, V> Foldleft<R, ImmutableList<V>> asListFold(
+	public static <R, V> Foldleft<R, ImmutableList<? extends V>> asListFold(
 			final Function<R, ? extends Collection<? extends V>> valueTransformation) {
-		return new TransformationFold<R, V, ImmutableList<V>>(new ImmutableListFold<V>(), valueTransformation);
+		return new TransformationFold<R, V, ImmutableList<? extends V>>(new ImmutableListFold<V>(), valueTransformation);
 	}
 
-	public static <R, V> Foldleft<R, ImmutableSet<V>> asSetFold(
+	public static <R, V> Foldleft<R, ImmutableSet<? extends V>> asSetFold(
 			final Function<R, ? extends Collection<? extends V>> valueTransformation) {
-		return new TransformationFold<R, V, ImmutableSet<V>>(new ImmutableSetFold<V>(), valueTransformation);
+		return new TransformationFold<R, V, ImmutableSet<? extends V>>(new ImmutableSetFold<V>(), valueTransformation);
 	}
 
 	public static <R, V extends Enum<V>> Foldleft<R, EnumSet<V>> asEnumSetFold(Class<V> enumType,
@@ -59,14 +59,14 @@ public abstract class Folds {
 		return new TransformationFold<R, V, EnumSet<V>>(new EnumSetFold<V>(enumType), valueTransformation);
 	}
 
-	interface CollectingFold<R, C extends Collection<R>> extends Foldleft<Collection<? extends R>, C> {
+	interface CollectingFold<R, C extends Collection<? extends R>> extends Foldleft<Collection<? extends R>, C> {
 
 	}
 
-	static class ImmutableListFold<R> implements CollectingFold<R, ImmutableList<R>> {
+	static class ImmutableListFold<R> implements CollectingFold<R, ImmutableList<? extends R>> {
 
 		@Override
-		public ImmutableList<R> apply(ImmutableList<R> left, Collection<? extends R> right) {
+		public ImmutableList<? extends R> apply(ImmutableList<? extends R> left, Collection<? extends R> right) {
 			left = Types.defaultIfNull(left, ImmutableList.<R> of());
 
 			if (right.isEmpty())
@@ -77,10 +77,10 @@ public abstract class Folds {
 		}
 	}
 
-	static class ImmutableSetFold<R> implements CollectingFold<R, ImmutableSet<R>> {
+	static class ImmutableSetFold<R> implements CollectingFold<R, ImmutableSet<? extends R>> {
 
 		@Override
-		public ImmutableSet<R> apply(ImmutableSet<R> left, Collection<? extends R> right) {
+		public ImmutableSet<? extends R> apply(ImmutableSet<? extends R> left, Collection<? extends R> right) {
 			left = Types.defaultIfNull(left, ImmutableSet.<R> of());
 
 			if (right.isEmpty())
@@ -124,7 +124,7 @@ public abstract class Folds {
 		}
 	}
 
-	static class TransformationFold<R, D, C extends Collection<D>> implements Foldleft<R, C> {
+	static class TransformationFold<R, D, C extends Collection<? extends D>> implements Foldleft<R, C> {
 
 		private final CollectingFold<D, C> _fold;
 		private final Function<R, ? extends Collection<? extends D>> _transformation;

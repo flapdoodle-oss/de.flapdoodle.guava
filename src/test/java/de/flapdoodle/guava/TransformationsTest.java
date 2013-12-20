@@ -47,7 +47,7 @@ public class TransformationsTest {
 
 	@Test
 	public void flatmapShouldGiveAllEntries() {
-		ImmutableList<String> result = Transformations.flatmap(Lists.newArrayList("A", "B"),
+		ImmutableList<? extends String> result = Transformations.flatmap(Lists.newArrayList("A", "B"),
 				new Function<String, Collection<String>>() {
 
 					@Override
@@ -64,7 +64,7 @@ public class TransformationsTest {
 		List<? extends List<String>> lists = ImmutableList.<List<String>> builder().add(Lists.newArrayList("A", "B")).add(
 				Lists.newArrayList("C", "D", "E")).build();
 
-		ImmutableList<String> result = Transformations.flatmap(lists);
+		ImmutableList<? extends String> result = Transformations.flatmap(lists);
 
 		assertEquals("[A, B, C, D, E]", result.toString());
 	}
@@ -97,7 +97,7 @@ public class TransformationsTest {
 
 	@Test
 	public void mapListToMapWithFoldShouldGiveFoldedValuesInMap() {
-		Map<String, ? extends List<String>> map = Transformations.map(
+		Map<String, ? extends List<? extends String>> map = Transformations.map(
 				Lists.newArrayList("Achim", "Susi", "Jochen", "Arnim"), new Function<String, String>() {
 
 					@Override
