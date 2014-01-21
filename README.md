@@ -11,7 +11,7 @@ minor guava extensions
 Stable (Maven Central Repository, Released: 19.12.2013 - wait 24hrs for [maven central](http://repo1.maven.org/maven2/de/flapdoodle/guava/de.flapdoodle.guava/maven-metadata.xml))
 
 	<dependency>
-		<groupId>de.flapdoodle.embed</groupId>
+		<groupId>de.flapdoodle.guava</groupId>
 		<artifactId>de.flapdoodle.guava</artifactId>
 		<version>1.1</version>
 	</dependency>
@@ -19,7 +19,7 @@ Stable (Maven Central Repository, Released: 19.12.2013 - wait 24hrs for [maven c
 Snapshots (Repository http://oss.sonatype.org/content/repositories/snapshots)
 
 	<dependency>
-		<groupId>de.flapdoodle.embed</groupId>
+		<groupId>de.flapdoodle.guava</groupId>
 		<artifactId>de.flapdoodle.guava</artifactId>
 		<version>1.2-SNAPSHOT</version>
 	</dependency>
