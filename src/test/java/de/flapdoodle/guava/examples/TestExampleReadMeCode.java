@@ -68,6 +68,57 @@ public class TestExampleReadMeCode {
 		// <-
 		assertNotNull(order);
 	}
+	
+	// ##### Convert a list into a 1:1 map with transformations for key and value 
+	@Test
+	public void listToKeyValue() {
+		// ->
+		List<User> users;
+		// <-
+		users = Lists.newArrayList(new User(1,"klaus"), new User(2,"susi"), new User(4,"klaus"));
+		// ->
+		// ...
+		Function<User, Integer> keytransformation = new Function<User, Integer>() {
+
+			@Override
+			public Integer apply(User user) {
+				return user.id();
+			}
+		};
+		
+		Function<User, String> valuetransformation = new Function<User, String>() {
+
+			@Override
+			public String apply(User user) {
+				return user.name();
+			}
+		};
+
+		Map<Integer, String> userMap = Transformations.map(users, keytransformation, valuetransformation);
+
+		String userName = userMap.get(2);
+		// ...
+		// <-
+		assertEquals("susi",userName);
+	}
+	
+	static class User {
+		final int _id;
+		final String _name;
+
+		public User(int id, String name) {
+			this._id = id;
+			this._name = name;
+		}
+
+		public int id() {
+			return _id;
+		}
+
+		public String name() {
+			return _name;
+		}
+	}
 
 	// ##### Convert a list into a map of lists
 	@Test
