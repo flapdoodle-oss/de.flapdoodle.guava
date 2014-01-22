@@ -16,23 +16,35 @@
  */
 package de.flapdoodle.guava.examples;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Test;
-
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
+import de.flapdoodle.guava.Expectations;
 import de.flapdoodle.guava.Foldleft;
 import de.flapdoodle.guava.Folds;
 import de.flapdoodle.guava.Transformations;
+import de.flapdoodle.guava.Types;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Test;
 
 public class TestExampleReadMeCode {
 
@@ -41,6 +53,31 @@ public class TestExampleReadMeCode {
 	// We did some minor extensions based on guava stuff which can be usefull in some situations. These extensions are not
 	// optimized for speed or memory usage.
 	// <-
+
+	// #### Collections stuff
+	
+	// ##### first entry of an collection
+	
+	@Test
+	public void giveMeOneIfOnlyOneExistAndFailIfMore() {
+		// ->
+		Optional<String> result = Expectations.noneOrOne(Lists.<String>newArrayList());
+		assertFalse(result.isPresent());
+		result = Expectations.noneOrOne(Lists.newArrayList("foo"));
+		assertTrue(result.isPresent());
+		// <-
+		
+		// ->
+		// ...
+		try {
+			result = Expectations.noneOrOne(Lists.newArrayList("foo","bar"));
+			fail("should not be reached");
+		} catch (IllegalArgumentException iax) {
+			
+		}
+		// ...
+		// <-
+	}
 
 	// #### Convert lists into maps
 
@@ -159,12 +196,16 @@ public class TestExampleReadMeCode {
 	}
 
 	// #### Foldleft
+	// ->
+	// foldLeft can be used for many aggregation operations like sum, count, concat.. 
+	// <-
 
 	@Test
 	public void foldLeft() {
 		// ->
 		// ...
-		int result = Folds.foldLeft(Lists.newArrayList(1,2,3,4,5,6), new Foldleft<Integer, Integer>() {
+		List<Integer> numbers = Lists.newArrayList(1,2,3,4,5,6);
+		int result = Folds.foldLeft(numbers, new Foldleft<Integer, Integer>() {
 			@Override
 			public Integer apply(Integer left, Integer right) {
 				return left+right;

@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 import de.flapdoodle.guava.Foldleft;
 import de.flapdoodle.guava.Folds;
 import java.util.ArrayList;
+import java.util.List;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
@@ -31,7 +32,7 @@ public class TestFolds {
 	
 	@Test
 	public void testCount() {
-		final ArrayList<Integer> source = Lists.newArrayList(1,2,3,4,5,6);
+		List<Integer> source = Lists.newArrayList(1,2,3,4,5,6);
 		int result = Folds.foldLeft(source, new Foldleft<Integer, Integer>() {
 			@Override
 			public Integer apply(Integer left, Integer right) {
@@ -39,5 +40,17 @@ public class TestFolds {
 			}
 		}, 0);
 		assertEquals(6,result);
+	}
+
+	@Test
+	public void testConcat() {
+		List<String> source = Lists.newArrayList("fu","man","chu");
+		String result = Folds.foldLeft(source, new Foldleft<String, String>() {
+			@Override
+			public String apply(String left, String right) {
+				return left+" "+right;
+			}
+		}, "name is");
+		assertEquals("name is fu man chu",result);
 	}
 }
