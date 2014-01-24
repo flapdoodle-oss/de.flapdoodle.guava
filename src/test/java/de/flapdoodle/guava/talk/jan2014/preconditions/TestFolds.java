@@ -16,11 +16,15 @@
  */
 package de.flapdoodle.guava.talk.jan2014.preconditions;
 
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.flapdoodle.guava.Foldleft;
 import de.flapdoodle.guava.Folds;
+import de.flapdoodle.guava.Transformations;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
@@ -52,5 +56,29 @@ public class TestFolds {
 			}
 		}, "name is");
 		assertEquals("name is fu man chu",result);
+	}
+	
+	@Test(/*expected = IllegalArgumentException.class*/)
+	public void testMapByFoldWithOneToOne() {
+		List<String> names = Lists.newArrayList("Achim", "Albert", "Susi", "Sonja", "Bert");
+
+		Function<String, Character> keytransformation = new Function<String, Character>() {
+
+			@Override
+			public Character apply(String name) {
+				return name.charAt(0);
+			}
+		};
+
+		Map<Character, String> nameMap = Transformations.map(names, keytransformation,new Foldleft<String, String>() {
+
+			@Override
+			public String apply(String left, String right) {
+				if (left!=null) {
+					throw new IllegalArgumentException("key for "+right+" allready mapped to "+left);
+				}
+				return right;
+			}
+		});
 	}
 }
