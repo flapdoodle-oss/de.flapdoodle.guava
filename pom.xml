@@ -11,7 +11,7 @@
     <groupId>de.flapdoodle.guava</groupId>
     <artifactId>de.flapdoodle.guava</artifactId>
     <name>Flapdoodle Guava Extensions</name>
-    <version>1.2-SNAPSHOT</version>
+    <version>1.2</version>
 
     <description>minor extensions for guava</description>
     <url>http://github.com/flapdoodle-oss/de.flapdoodle.guava</url>
