@@ -40,10 +40,11 @@ public abstract class MapTransformations {
 
 			@Override
 			public M apply(M left, Map.Entry<S, V> right) {
+				V rightValue = right.getValue();
 				try {
-					return valuetransformation.apply(left, right.getValue());
+					return valuetransformation.apply(left, rightValue);
 				} catch (RuntimeException rx) {
-					throw new RuntimeException("apply left(" + left + ") and right(" + right + ")", rx);
+					throw new IllegalArgumentException("failed to apply '" + left + "' and '" + rightValue + "'", rx);
 				}
 			}
 		});

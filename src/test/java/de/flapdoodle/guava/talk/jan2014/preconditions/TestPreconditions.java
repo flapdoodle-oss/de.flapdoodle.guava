@@ -32,7 +32,7 @@ public class TestPreconditions {
 			elementOf(index, Lists.newArrayList("foo"));
 			fail("should not be reached");
 		}catch (RuntimeException iox) {
-			iox.printStackTrace();
+			// iox.printStackTrace();
 		}
 	}
 
@@ -43,7 +43,7 @@ public class TestPreconditions {
 			elementOf(index, Lists.newArrayList("foo"));
 			fail("should not be reached");
 		}catch (RuntimeException iox) {
-			iox.printStackTrace();
+			// iox.printStackTrace();
 		}
 	}
 

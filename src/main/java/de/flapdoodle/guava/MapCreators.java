@@ -31,6 +31,10 @@ public abstract class MapCreators {
 		return new EnumMapCreator<K, V>(type);
 	}
 
+	public static <K, V> MapCreator<K, V, Map<K, V>> hashMap() {
+		return new HashMapCreator<K, V>();
+	}
+
 	public static <K, V> MapCreator<K, V, Map<K, V>> linkedHashMap() {
 		return new LinkedHashMapCreator<K, V>();
 	}
@@ -57,4 +61,11 @@ public abstract class MapCreators {
 		}
 	}
 
+	private static final class HashMapCreator<K, V> implements MapCreator<K, V, Map<K, V>> {
+
+		@Override
+		public final Map<K, V> newInstance() {
+			return Maps.newHashMap();
+		}
+	}
 }

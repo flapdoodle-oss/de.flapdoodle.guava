@@ -58,7 +58,7 @@ public class TestFolds {
 		assertEquals("name is fu man chu",result);
 	}
 	
-	@Test(/*expected = IllegalArgumentException.class*/)
+	@Test(expected = IllegalArgumentException.class)
 	public void testMapByFoldWithOneToOne() {
 		List<String> names = Lists.newArrayList("Achim", "Albert", "Susi", "Sonja", "Bert");
 

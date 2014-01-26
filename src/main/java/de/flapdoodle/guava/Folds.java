@@ -152,8 +152,8 @@ public abstract class Folds {
 		public V apply(V left, T right) {
 			V value = this.valueTransformation.apply(right);
 			if (left != null) {
-				throw new IllegalArgumentException("Entry " + right + " with mapped to " + value
-						+ " is allready mapped to the same key as " + left);
+				throw new IllegalArgumentException("entry '" + right + "' mapped to '" + value
+						+ "' is allready mapped to the same key as '" + left+"'");
 			}
 			return value;
 		}

@@ -66,12 +66,12 @@ public abstract class Transformations {
 
 	public static <K, V, T> Map<K, V> map(Collection<T> collection, Function<? super T, K> keyTransformation,
 			Function<? super T, V> valueTransformation) {
-		return map(MapCreators.<K, V> linkedHashMap(), collection, keyTransformation, valueTransformation);
+		return map(MapCreators.<K, V> hashMap(), collection, keyTransformation, valueTransformation);
 	}
 
 	public static <K, V, T> Map<K, V> map(Collection<T> collection, Function<? super T, K> keyTransformation,
 			Foldleft<? super T, V> valueFold) {
-		return map(MapCreators.<K, V> linkedHashMap(), collection, keyTransformation, valueFold);
+		return map(MapCreators.<K, V> hashMap(), collection, keyTransformation, valueFold);
 	}
 
 	public static <K extends Enum<K>, T> EnumMap<K, T> map(Class<K> enumType, Collection<T> collection,

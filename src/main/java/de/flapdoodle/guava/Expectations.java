@@ -23,6 +23,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.Iterables;
 
 public abstract class Expectations {
 
@@ -46,13 +47,13 @@ public abstract class Expectations {
 		return ret;
 	}
 
-	public static <T> T oneIfOnlyOne(Iterator<T> iterator, T defaultValue) {
-		return noneOrOneIfOnlyOne(iterator).or(Optional.fromNullable(defaultValue)).orNull();
-	}
-
 	public static <T> Optional<T> noneOrOneIfOnlyOne(Iterable<T> values) {
 		Preconditions.checkNotNull(values, "values is null");
 		return noneOrOneIfOnlyOne(values.iterator());
+	}
+
+	public static <T> T oneIfOnlyOne(Iterator<T> iterator, T defaultValue) {
+		return noneOrOneIfOnlyOne(iterator).or(Optional.fromNullable(defaultValue)).orNull();
 	}
 
 	public static <T> T oneIfOnlyOne(Iterable<T> values, T defaultValue) {
@@ -71,8 +72,12 @@ public abstract class Expectations {
 		return noneOrOne(values.iterator());
 	}
 
+	/**
+	 * @see Iterables#any(Iterable, Predicate)
+	 */
+	@Deprecated
 	public static <T> boolean any(Collection<T> candidates, Predicate<T> condition) {
-		return !Collections2.filter(candidates, condition).isEmpty();
+		return Iterables.any(candidates, condition);
 	}
 
 }
