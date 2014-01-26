@@ -39,6 +39,13 @@ public abstract class Expectations {
 		return Optional.of(iterator.next());
 	}
 
+	/**
+	 * gives one, if only one value exist
+	 * gives none on everything else
+	 * 
+	 * @param values
+	 * @return optional
+	 */
 	public static <T> Optional<T> noneOrOneIfOnlyOne(Iterator<T> iterator) {
 		Optional<T> ret = intNoneOrOne(iterator);
 		if (iterator.hasNext()) {
@@ -47,26 +54,61 @@ public abstract class Expectations {
 		return ret;
 	}
 
+	/**
+	 * gives one, if only one value exist
+	 * gives none on everything else
+	 * 
+	 * @param values
+	 * @return optional
+	 */
 	public static <T> Optional<T> noneOrOneIfOnlyOne(Iterable<T> values) {
 		Preconditions.checkNotNull(values, "values is null");
 		return noneOrOneIfOnlyOne(values.iterator());
 	}
 
+	/**
+	 * gives first value, if one value exist
+	 * gives defaultValue if empty or more than one value exist,
+	 * 
+	 * @param values
+	 * @return value
+	 */
 	public static <T> T oneIfOnlyOne(Iterator<T> iterator, T defaultValue) {
 		return noneOrOneIfOnlyOne(iterator).or(Optional.fromNullable(defaultValue)).orNull();
 	}
 
+	/**
+	 * gives first value, if one value exist
+	 * gives defaultValue if empty or more than one value exist,
+	 * 
+	 * @param values
+	 * @return value
+	 */
 	public static <T> T oneIfOnlyOne(Iterable<T> values, T defaultValue) {
 		Preconditions.checkNotNull(values, "values is null");
 		return oneIfOnlyOne(values.iterator(), defaultValue);
 	}
 
+	/**
+	 * gives none if empty, one if one element, fails if more than one
+	 * 
+	 * @param values
+	 * @return optional
+	 * @throws IllegalArgumentException if more than one value exist
+	 */
 	public static <T> Optional<T> noneOrOne(Iterator<T> iterator) {
 		Optional<T> ret = intNoneOrOne(iterator);
 		Preconditions.checkArgument(iterator.hasNext() == false, "contains more than one");
 		return ret;
 	}
 
+	/**
+	 * gives none if empty, one if one element, fails if more than one
+	 * 
+	 * @param values
+	 * @return optional
+	 * @throws IllegalArgumentException if more than one value exist
+	 */
 	public static <T> Optional<T> noneOrOne(Iterable<T> values) {
 		Preconditions.checkNotNull(values, "values is null");
 		return noneOrOne(values.iterator());

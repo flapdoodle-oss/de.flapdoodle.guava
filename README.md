@@ -29,6 +29,15 @@ Snapshots (Repository http://oss.sonatype.org/content/repositories/snapshots)
 We did some minor extensions based on guava stuff which can be usefull in some situations. These extensions are not
 optimized for speed or memory usage.
 
+#### Collections stuff
+
+##### First element of collections
+
+	List<String> data;
+	...
+	Optional<String> result = Expectations.noneOrOne(data);
+	...
+
 #### Convert lists into maps
 
 ##### Convert a list into a 1:1 map 
@@ -48,6 +57,31 @@ optimized for speed or memory usage.
 	Order order = orderMap.get(2);
 	...
 
+##### Convert a list into a 1:1 map with transformations for key and value 
+
+	List<User> users;
+	...
+	Function<User, Integer> keytransformation = new Function<User, Integer>() {
+
+		@Override
+		public Integer apply(User user) {
+			return user.id();
+		}
+	};
+
+	Function<User, String> valuetransformation = new Function<User, String>() {
+
+		@Override
+		public String apply(User user) {
+			return user.name();
+		}
+	};
+
+	Map<Integer, String> userMap = Transformations.map(users, keytransformation, valuetransformation);
+
+	String userName = userMap.get(2);
+	...
+
 ##### Convert a list into a map of lists
 
 	...
@@ -61,17 +95,19 @@ optimized for speed or memory usage.
 		}
 	};
 
-	Map<Character, ImmutableList<String>> nameMap = Transformations.map(names, keytransformation,
+	Map<Character, ImmutableList<? extends String>> nameMap = Transformations.map(names, keytransformation,
 			Folds.asListFold(Transformations.<String> asCollection()));
 
-	ImmutableList<String> namesWithA = nameMap.get('A');
+	ImmutableList<? extends String> namesWithA = nameMap.get('A');
 
 	...
 
 #### Foldleft
 
+foldLeft can be used for many aggregation operations like sum, count, concat.. 
 	...
-	int result = Folds.foldLeft(Lists.newArrayList(1,2,3,4,5,6), new Foldleft<Integer, Integer>() {
+	List<Integer> numbers = Lists.newArrayList(1,2,3,4,5,6);
+	int result = Folds.foldLeft(numbers, new Foldleft<Integer, Integer>() {
 		@Override
 		public Integer apply(Integer left, Integer right) {
 			return left+right;

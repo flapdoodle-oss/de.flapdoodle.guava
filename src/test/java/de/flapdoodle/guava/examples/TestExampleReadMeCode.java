@@ -56,25 +56,17 @@ public class TestExampleReadMeCode {
 
 	// #### Collections stuff
 	
-	// ##### first entry of an collection
+	// ##### First element of collections
 	
 	@Test
-	public void giveMeOneIfOnlyOneExistAndFailIfMore() {
+	public void expectOneOrNone() {
 		// ->
-		Optional<String> result = Expectations.noneOrOne(Lists.<String>newArrayList());
-		assertFalse(result.isPresent());
-		result = Expectations.noneOrOne(Lists.newArrayList("foo"));
-		assertTrue(result.isPresent());
+		List<String> data;
 		// <-
-		
+		data = Lists.<String>newArrayList();
 		// ->
 		// ...
-		try {
-			result = Expectations.noneOrOne(Lists.newArrayList("foo","bar"));
-			fail("should not be reached");
-		} catch (IllegalArgumentException iax) {
-			
-		}
+		Optional<String> result = Expectations.noneOrOne(data);
 		// ...
 		// <-
 	}
