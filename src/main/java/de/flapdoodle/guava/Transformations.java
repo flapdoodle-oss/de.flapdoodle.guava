@@ -29,11 +29,14 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.ForwardingIterator;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import de.flapdoodle.guava.functions.NoTransformation;
 import de.flapdoodle.guava.functions.ValueToCollection;
+import java.util.Iterator;
 
 public abstract class Transformations {
 
@@ -58,6 +61,10 @@ public abstract class Transformations {
 				return input;
 			}
 		});
+	}
+	
+	public static <T> ImmutableList<? extends T> flatmap(Collection<? extends T> collection, Collection<? extends T> otherCollection, Collection<? extends T>... collections) {
+		return flatmap(Varargs.asCollection(collection, otherCollection, collections));
 	}
 
 	public static <K, T> Map<K, T> map(Collection<T> collection, Function<? super T, K> keytransformation) {
@@ -136,6 +143,33 @@ public abstract class Transformations {
 		Preconditions.checkArgument(index >= 0, "index < 0");
 		Preconditions.checkArgument(index <= asList.size(), "index > size");
 		return new Partition<T>(asList.subList(0, index), asList.subList(index, asList.size()));
+	}
+
+	public static <A,B> Collection<Pair<A,B>> zip(Iterable<A> a, Iterable<B> b) {
+		return zip(a.iterator(),b.iterator());
+	}
+	
+	public static <A,B> Collection<Pair<A,B>> zip(Iterator<A> a, Iterator<B> b) {
+		Preconditions.checkNotNull(a,"a is null");
+		Preconditions.checkNotNull(b,"b is null");
+		
+		final ImmutableList.Builder<Pair<A, B>> builder = ImmutableList.<Pair<A,B>>builder();
+		int pos=0;
+		boolean done=false;
+		do {
+			boolean aNext=a.hasNext();
+			boolean bNext=b.hasNext();
+			if (aNext  && bNext) {
+				builder.add(new Pair(a.next(),b.next()));
+				pos++;
+			} else {
+				if ((aNext) || (bNext)) {
+					throw new IndexOutOfBoundsException("no element in "+(aNext?"a":"b")+" found at "+pos);
+				}
+				done=true;
+			}
+		} while (!done);
+		return builder.build();
 	}
 
 	public static <V> Function<V, V> noop() {
