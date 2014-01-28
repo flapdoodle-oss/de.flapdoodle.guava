@@ -83,7 +83,7 @@ public abstract class Transformations {
 	}
 
 	public static <K, V> Map<K, V> map(Collection<Pair<K, V>> pairs) {
-		return map(pairs, new PairToKey<K,V>(),new PairToValue<K,V>());
+		return map(pairs, new PairToKey<K>(),new PairToValue<V>());
 	}
 	
 	public static <K, T> Map<K, T> map(Collection<T> collection, Function<? super T, K> keytransformation) {
@@ -203,18 +203,18 @@ public abstract class Transformations {
 		return Functions.compose(new ValueToCollection<D>(), transformation);
 	}
 
-	private static class PairToKey<K, V> implements Function<Pair<K, V>, K> {
+	private static class PairToKey<K> implements Function<Pair<K, ?>, K> {
 
 		@Override
-		public K apply(Pair<K, V> input) {
+		public K apply(Pair<K, ?> input) {
 			return input.a();
 		}
 	}
 
-	private static class PairToValue<K, V> implements Function<Pair<K, V>, V> {
+	private static class PairToValue<V> implements Function<Pair<?, V>, V> {
 
 		@Override
-		public V apply(Pair<K, V> input) {
+		public V apply(Pair<?, V> input) {
 			return input.b();
 		}
 	}
