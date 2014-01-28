@@ -13,6 +13,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *//**
+ * Copyright (C) 2013
+ *   Michael Mosmann <michael@mosmann.de>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package de.flapdoodle.guava;
 
@@ -67,6 +82,10 @@ public abstract class Transformations {
 		return flatmap(Varargs.asCollection(collection, otherCollection, collections));
 	}
 
+	public static <K, V> Map<K, V> map(Collection<Pair<K, V>> pairs) {
+		return map(pairs, new PairToKey<K,V>(),new PairToValue<K,V>());
+	}
+	
 	public static <K, T> Map<K, T> map(Collection<T> collection, Function<? super T, K> keytransformation) {
 		return map(collection, keytransformation, new NoTransformation<T>());
 	}
@@ -182,5 +201,21 @@ public abstract class Transformations {
 
 	public static <S, D> Function<S, Collection<? extends D>> asCollection(Function<S, D> transformation) {
 		return Functions.compose(new ValueToCollection<D>(), transformation);
+	}
+
+	private static class PairToKey<K, V> implements Function<Pair<K, V>, K> {
+
+		@Override
+		public K apply(Pair<K, V> input) {
+			return input.a();
+		}
+	}
+
+	private static class PairToValue<K, V> implements Function<Pair<K, V>, V> {
+
+		@Override
+		public V apply(Pair<K, V> input) {
+			return input.b();
+		}
 	}
 }
