@@ -20,6 +20,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -34,25 +35,25 @@ public abstract class Sort {
 		// no instance
 	}
 
-	public static <T extends Comparable<T>> List<T> sort(List<T> source) {
+	public static <T extends Comparable<T>> List<T> sort(Iterable<T> source) {
 		ArrayList<T> toSort = Lists.newArrayList(source);
 		Collections.sort(toSort);
 		return toSort;
 	}
 
-	public static <T> List<T> sortBy(List<T> source, Comparator<? super T> comparator) {
+	public static <T> List<T> sortBy(Iterable<T> source, Comparator<? super T> comparator) {
 		ArrayList<T> toSort = Lists.newArrayList(source);
 		Collections.sort(toSort, comparator);
 		return toSort;
 	}
 
-	public static <T, S> List<T> sortBy(List<T> source, Function<T, S> sortTransformation, Comparator<? super S> comparator) {
-		List<EntryRef<T, S>> result = Lists.transform(source, new EntryRefTransformation<T, S>(sortTransformation));
+	public static <T, S> List<T> sortBy(Iterable<T> source, Function<T, S> sortTransformation, Comparator<? super S> comparator) {
+		List<EntryRef<T, S>> result = Lists.transform(Lists.newArrayList(source), new EntryRefTransformation<T, S>(sortTransformation));
 		List<EntryRef<T, S>> sorted = sortBy(result, new EntryRefComparator<S>(comparator));
 		return Lists.transform(sorted, new EntryRefSourceTransformation());
 	}
 
-	public static <T, S extends Comparable<S>> List<T> sortBy(List<T> source, Function<T, S> sortTransformation) {
+	public static <T, S extends Comparable<S>> List<T> sortBy(Iterable<T> source, Function<T, S> sortTransformation) {
 		return sortBy(source, sortTransformation, Ordering.natural());
 	}
 
