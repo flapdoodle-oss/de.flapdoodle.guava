@@ -19,8 +19,10 @@ package de.flapdoodle.guava;
 import java.util.Map;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 
 import de.flapdoodle.guava.functions.NoTransformation;
+import java.util.Set;
 
 public abstract class MapTransformations {
 
@@ -57,5 +59,23 @@ public abstract class MapTransformations {
 
 	public static <S, D, V> Map<D, V> transformKeys(Map<S, V> map, final Function<? super S, D> keytransformation) {
 		return transform(map, keytransformation, new NoTransformation<V>());
+	}
+	
+	public static <K, V> Map<V, K> swap(Map<K, V> map) {
+		return Transformations.map(map.entrySet(), new Function<Map.Entry<K, V>, V>() {
+
+			@Override
+			public V apply(Map.Entry<K, V> input) {
+				return input.getValue();
+			}
+			
+		},new Function<Map.Entry<K, V>, K>() {
+
+			@Override
+			public K apply(Map.Entry<K, V> input) {
+				return input.getKey();
+			}
+			
+		});
 	}
 }
