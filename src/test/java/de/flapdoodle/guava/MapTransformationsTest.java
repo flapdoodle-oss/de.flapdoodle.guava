@@ -59,4 +59,18 @@ public class MapTransformationsTest {
 		});
 	}	
 
+	@Test(expected = IllegalArgumentException.class)
+	public void swapMapShouldFailIfMultipleKeysMapToSameValue() {
+		Map<String, Integer> source=ImmutableMap.of("foo", 1,"bar",1);
+		MapTransformations.swap(source);
+	}
+
+	@Test
+	public void swapMapWithOneToOneMap() {
+		Map<String, Integer> source=ImmutableMap.of("foo", 1,"bar",2);
+		final Map<Integer, String> swapped = MapTransformations.swap(source);
+		assertEquals(2,swapped.size());
+		assertEquals("foo",swapped.get(1));
+		assertEquals("bar",swapped.get(2));
+	}
 }
