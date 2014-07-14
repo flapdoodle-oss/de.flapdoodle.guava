@@ -19,12 +19,15 @@ package de.flapdoodle.guava;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 
 public abstract class Folds {
@@ -33,7 +36,7 @@ public abstract class Folds {
 		// no instance
 	}
 
-	public static <S, D> D foldLeft(Collection<? extends S> collection, Foldleft<? super S, D> foldFunction, D leftValue) {
+	public static <S, D> D foldLeft(Iterable<? extends S> collection, Foldleft<? super S, D> foldFunction, D leftValue) {
 		Preconditions.checkNotNull(collection, "collection is null");
 		Preconditions.checkNotNull(foldFunction, "foldFunction is null");
 
@@ -59,6 +62,12 @@ public abstract class Folds {
 		return new TransformationFold<R, V, EnumSet<V>>(new EnumSetFold<V>(enumType), valueTransformation);
 	}
 
+	public static <R, V> Foldleft<R, Iterable<? extends V>> asIterableFold(
+			final Function<R, ? extends Iterable<? extends V>> valueTransformation) {
+		return new IterableTransformationFold<R, V, Iterable<? extends V>>(new IterableFoldImpl<V>(), valueTransformation);
+	}
+
+	
 	interface CollectingFold<R, C extends Collection<? extends R>> extends Foldleft<Collection<? extends R>, C> {
 
 	}
@@ -99,7 +108,7 @@ public abstract class Folds {
 			return ret;
 		}
 	}
-
+	
 	static class EnumSetFold<R extends Enum<R>> implements CollectingFold<R, EnumSet<R>> {
 
 		private final Class<R> _enumType;
@@ -126,10 +135,10 @@ public abstract class Folds {
 
 	static class TransformationFold<R, D, C extends Collection<? extends D>> implements Foldleft<R, C> {
 
-		private final CollectingFold<D, C> _fold;
+		private final Foldleft<Collection<? extends D>, C> _fold;
 		private final Function<R, ? extends Collection<? extends D>> _transformation;
 
-		public TransformationFold(CollectingFold<D, C> fold, Function<R, ? extends Collection<? extends D>> transformation) {
+		public TransformationFold(Foldleft<Collection<? extends D>, C> fold, Function<R, ? extends Collection<? extends D>> transformation) {
 			_fold = fold;
 			_transformation = transformation;
 		}
@@ -139,6 +148,37 @@ public abstract class Folds {
 			return _fold.apply(left, _transformation.apply(right));
 		}
 	}
+
+	interface IterableFold<R, C extends Iterable<? extends R>> extends Foldleft<Iterable<? extends R>, C> {
+
+	}
+
+	static class IterableFoldImpl<R> implements IterableFold<R, Iterable<? extends R>> {
+
+		@Override
+		public Iterable<? extends R> apply(Iterable<? extends R> left, Iterable<? extends R> right) {
+			left = Types.defaultIfNull(left, ImmutableList.<R> of());
+
+			return Iterables.concat(left,right);
+		}
+	}
+
+	static class IterableTransformationFold<R, D, C extends Iterable<? extends D>> implements Foldleft<R, C> {
+
+		private final Foldleft<Iterable<? extends D>, C> _fold;
+		private final Function<R, ? extends Iterable<? extends D>> _transformation;
+
+		public IterableTransformationFold(Foldleft<Iterable<? extends D>, C> fold, Function<R, ? extends Iterable<? extends D>> transformation) {
+			_fold = fold;
+			_transformation = transformation;
+		}
+
+		@Override
+		public C apply(C left, R right) {
+			return _fold.apply(left, _transformation.apply(right));
+		}
+	}
+
 
 	static class ValueFromLeftIllegalFold<T, V> implements Foldleft<T, V> {
 

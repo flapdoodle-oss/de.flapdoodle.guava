@@ -53,6 +53,11 @@ public abstract class Transformations {
 		return Folds.foldLeft(source, Folds.asListFold(transformation), ImmutableList.<D> of());
 	}
 
+	public static <S, D, C extends Iterable<? extends D>> Iterable<? extends D> flatmap(Iterable<? extends S> source,
+			Function<? super S, C> transformation) {
+		return Folds.foldLeft(source, Folds.asIterableFold(transformation), ImmutableList.<D> of());
+	}
+
 	public static <T> ImmutableList<? extends T> flatmap(Collection<? extends Collection<? extends T>> collections) {
 		return flatmap(collections, new Function<Collection<? extends T>, Collection<? extends T>>() {
 

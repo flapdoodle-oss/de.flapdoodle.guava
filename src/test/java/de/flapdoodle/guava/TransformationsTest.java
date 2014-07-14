@@ -60,6 +60,20 @@ public class TransformationsTest {
 	}
 
 	@Test
+	public void iterableFlatmapShouldGiveAllEntries() {
+		Iterable<? extends String> result = Transformations.flatmap(Lists.newArrayList("A", "B"),
+				new Function<String, Iterable<String>>() {
+
+					@Override
+					public Iterable<String> apply(String input) {
+						return Lists.newArrayList(input, input, input);
+					}
+				});
+
+		assertEquals("[A, A, A, B, B, B]", result.toString());
+	}
+
+	@Test
 	public void flatmapShouldGiveAllEntriesFromLists() {
 		List<? extends List<String>> lists = ImmutableList.<List<String>> builder().add(Lists.newArrayList("A", "B")).add(
 				Lists.newArrayList("C", "D", "E")).build();
