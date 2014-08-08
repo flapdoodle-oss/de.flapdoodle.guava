@@ -16,10 +16,13 @@
  */
 package de.flapdoodle.guava;
 
+import java.util.Collection;
+
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 
 /**
- *
+ * 
  * @author mmosmann
  */
 public abstract class Varargs {
@@ -27,19 +30,36 @@ public abstract class Varargs {
 	private Varargs() {
 		// no instance
 	}
-	
-	public static <T> ImmutableList<T> asCollection(T arg,T... others) {
-		return ImmutableList.<T>builder()
-						.add(arg)
-						.add(others)
-						.build();
+
+	public static <T> ImmutableList<T> asCollection(T arg, T... others) {
+		return ImmutableList.<T> builder().add(arg).add(others).build();
 	}
 
-	public static <T> ImmutableList<T> asCollection(T arg,T other, T... others) {
-		return ImmutableList.<T>builder()
-						.add(arg)
-						.add(other)
-						.add(others)
-						.build();
+	public static <T> ImmutableList<T> asCollection(T arg, T other, T... others) {
+		return ImmutableList.<T> builder().add(arg).add(other).add(others).build();
+	}
+
+	@SafeVarargs
+	public static <T> ImmutableList<T> asCollection(Collection<T> list, T arg, T... others) {
+		return ImmutableList.<T> builder().addAll(list).add(arg).add(others).build();
+	}
+
+	@SafeVarargs
+	public static <T> ImmutableList<T> asCollection(T[] list, T arg, T... others) {
+		return ImmutableList.<T> builder().add(list).add(arg).add(others).build();
+	}
+
+	@SafeVarargs
+	public static <T> ImmutableList<T> asCollectionPrependVarargs(Collection<T> list, T arg, T... others) {
+		return ImmutableList.<T> builder().add(arg).add(others).addAll(list).build();
+	}
+
+	@SafeVarargs
+	public static <T> ImmutableList<T> asCollectionPrependVarargs(T[] list, T arg, T... others) {
+		return ImmutableList.<T> builder().add(arg).add(others).add(list).build();
+	}
+
+	public static <T> T[] asArray(Collection<? extends T> collection, Class<T> type) {
+		return Iterables.toArray(collection, type);
 	}
 }
