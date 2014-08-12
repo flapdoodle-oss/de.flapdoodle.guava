@@ -36,81 +36,79 @@ public abstract class Sort {
 	}
 
 	public static <T extends Comparable<T>> List<T> sort(Iterable<T> source) {
-		ArrayList<T> toSort = Lists.newArrayList(source);
-		Collections.sort(toSort);
-		return toSort;
+		return Ordering.natural().sortedCopy(source);
 	}
 
 	public static <T> List<T> sortBy(Iterable<T> source, Comparator<? super T> comparator) {
-		ArrayList<T> toSort = Lists.newArrayList(source);
-		Collections.sort(toSort, comparator);
-		return toSort;
+		return Ordering.from(comparator).sortedCopy(source);
 	}
 
 	public static <T, S> List<T> sortBy(Iterable<T> source, Function<T, S> sortTransformation, Comparator<? super S> comparator) {
-		List<EntryRef<T, S>> result = Lists.transform(Lists.newArrayList(source), new EntryRefTransformation<T, S>(sortTransformation));
-		List<EntryRef<T, S>> sorted = sortBy(result, new EntryRefComparator<S>(comparator));
-		return Lists.transform(sorted, new EntryRefSourceTransformation());
+		return orderBy(sortTransformation, comparator).sortedCopy(source);
+	}
+
+	public static <T, S> Ordering<T> orderBy(Function<T, S> sortTransformation, Comparator<? super S> comparator) {
+		return Ordering.from(comparator).onResultOf(sortTransformation);
 	}
 
 	public static <T, S extends Comparable<S>> List<T> sortBy(Iterable<T> source, Function<T, S> sortTransformation) {
 		return sortBy(source, sortTransformation, Ordering.natural());
 	}
 
-	static class EntryRefSourceTransformation<T, S> implements Function<EntryRef<T, S>, T> {
+//	static class EntryRefSourceTransformation<T, S> implements Function<EntryRef<T, S>, T> {
+//
+//		@Override
+//		public T apply(EntryRef<T, S> input) {
+//			return input.source();
+//		}
+//
+//	}
+//
+//	static class EntryRefTransformation<T, S> implements Function<T, EntryRef<T, S>> {
+//
+//		private final Function<T, S> sortTransformation;
+//
+//		public EntryRefTransformation(Function<T, S> sortTransformation) {
+//			this.sortTransformation = sortTransformation;
+//		}
+//
+//		@Override
+//		public EntryRef<T, S> apply(T input) {
+//			return new EntryRef<T, S>(input, sortTransformation.apply(input));
+//		}
+//	}
 
-		@Override
-		public T apply(EntryRef<T, S> input) {
-			return input.source();
-		}
+//	static class EntryRefComparator<S> implements Comparator<EntryRef<?, S>> {
+//
+//		private final Comparator<? super S> comparator;
+//
+//		public EntryRefComparator(Comparator<? super S> comparator) {
+//			this.comparator = comparator;
+//		}
+//
+//		@Override
+//		public int compare(EntryRef<?, S> o1, EntryRef<?, S> o2) {
+//			return comparator.compare(o1.sortValue(), o2.sortValue());
+//		}
+//
+//	}
 
-	}
-
-	static class EntryRefTransformation<T, S> implements Function<T, EntryRef<T, S>> {
-
-		private final Function<T, S> sortTransformation;
-
-		public EntryRefTransformation(Function<T, S> sortTransformation) {
-			this.sortTransformation = sortTransformation;
-		}
-
-		@Override
-		public EntryRef<T, S> apply(T input) {
-			return new EntryRef<T, S>(input, sortTransformation.apply(input));
-		}
-	}
-
-	static class EntryRefComparator<S> implements Comparator<EntryRef<?, S>> {
-
-		private final Comparator<? super S> comparator;
-
-		public EntryRefComparator(Comparator<? super S> comparator) {
-			this.comparator = comparator;
-		}
-
-		@Override
-		public int compare(EntryRef<?, S> o1, EntryRef<?, S> o2) {
-			return comparator.compare(o1.sortValue(), o2.sortValue());
-		}
-
-	}
-
-	static class EntryRef<T, S> {
-
-		private final T source;
-		private final S sortValue;
-
-		public EntryRef(T source, S sortValue) {
-			this.source = source;
-			this.sortValue = sortValue;
-		}
-
-		public T source() {
-			return source;
-		}
-
-		public S sortValue() {
-			return sortValue;
-		}
-	}
+//	static class EntryRef<T, S> {
+//
+//		private final T source;
+//		private final S sortValue;
+//
+//		public EntryRef(T source, S sortValue) {
+//			this.source = source;
+//			this.sortValue = sortValue;
+//		}
+//
+//		public T source() {
+//			return source;
+//		}
+//
+//		public S sortValue() {
+//			return sortValue;
+//		}
+//	}
 }
