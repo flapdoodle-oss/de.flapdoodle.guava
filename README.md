@@ -13,7 +13,7 @@ Stable (Maven Central Repository, Released: 12.08.2013 - wait 24hrs for [maven c
 	<dependency>
 		<groupId>de.flapdoodle.guava</groupId>
 		<artifactId>de.flapdoodle.guava</artifactId>
-		<version>1.3.4</version>
+		<version>1.3.5</version>
 	</dependency>
 
 Snapshots (Repository http://oss.sonatype.org/content/repositories/snapshots)
@@ -21,7 +21,7 @@ Snapshots (Repository http://oss.sonatype.org/content/repositories/snapshots)
 	<dependency>
 		<groupId>de.flapdoodle.guava</groupId>
 		<artifactId>de.flapdoodle.guava</artifactId>
-		<version>1.3.5-SNAPSHOT</version>
+		<version>1.3.6-SNAPSHOT</version>
 	</dependency>
 
 ### Usage
