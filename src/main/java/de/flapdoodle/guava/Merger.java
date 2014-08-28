@@ -52,4 +52,15 @@ public abstract class Merger {
 		return builder.build();
 	}
 	
+	public static <T> ImmutableList<T> remove(Iterable<? extends T> src, Predicate<? super T> matcher, Function<T, Optional<T>> transformation) {
+		ImmutableList.Builder<T> builder=ImmutableList.builder();
+		for (T s : src) {
+			if (matcher.apply(s)) {
+				builder.addAll(transformation.apply(s).asSet());
+			} else {
+				builder.add(s);
+			}
+		}
+		return builder.build();
+	}
 }
