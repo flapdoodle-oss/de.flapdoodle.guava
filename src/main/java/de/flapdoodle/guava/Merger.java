@@ -17,6 +17,9 @@
 package de.flapdoodle.guava;
 
 import com.google.common.base.Equivalence;
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -48,4 +51,16 @@ public abstract class Merger {
 		builder.addAll(notMerged);
 		return builder.build();
 	}
+	
+	public static <T> ImmutableList<T> remove(Iterable<? extends T> src, final Predicate<? super T> matcher,final Function<? super T, Optional<T>> transformation) {
+		return ImmutableList.copyOf(Transformations.flatmap(src, new Function<T, Iterable<T>>() {
+			public Iterable<T> apply(T input) {
+				if (matcher.apply(input)) {
+					return transformation.apply(input).asSet();
+				}
+				return ImmutableList.of();
+			};
+		}));
+	}
+	
 }
