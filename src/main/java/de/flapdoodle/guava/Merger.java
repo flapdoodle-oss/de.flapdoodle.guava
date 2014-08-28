@@ -52,15 +52,4 @@ public abstract class Merger {
 		return builder.build();
 	}
 	
-	public static <T> ImmutableList<T> remove(Iterable<? extends T> src, final Predicate<? super T> matcher,final Function<? super T, Optional<T>> transformation) {
-		return ImmutableList.copyOf(Transformations.flatmap(src, new Function<T, Iterable<T>>() {
-			public Iterable<T> apply(T input) {
-				if (matcher.apply(input)) {
-					return transformation.apply(input).asSet();
-				}
-				return ImmutableList.of();
-			};
-		}));
-	}
-	
 }
