@@ -29,6 +29,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ForwardingIterator;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -55,7 +56,8 @@ public abstract class Transformations {
 
 	public static <S, D, C extends Iterable<? extends D>> Iterable<? extends D> flatmap(Iterable<? extends S> source,
 			Function<? super S, C> transformation) {
-		return Folds.foldLeft(source, Folds.asIterableFold(transformation), ImmutableList.<D> of());
+		//Folds.foldLeft(source, Folds.asIterableFold(transformation), ImmutableList.<D> of());
+		return FluentIterable.from(source).transformAndConcat(transformation);
 	}
 
 	public static <T> ImmutableList<? extends T> flatmap(Collection<? extends Collection<? extends T>> collections) {
@@ -72,45 +74,45 @@ public abstract class Transformations {
 		return flatmap(Varargs.asCollection(collection, otherCollection, collections));
 	}
 
-	public static <K, V> Map<K, V> map(Collection<Pair<K, V>> pairs) {
+	public static <K, V> Map<K, V> map(Iterable<Pair<K, V>> pairs) {
 		return map(pairs, new PairToKey<K>(),new PairToValue<V>());
 	}
 	
-	public static <K, T> Map<K, T> map(Collection<T> collection, Function<? super T, K> keytransformation) {
+	public static <K, T> Map<K, T> map(Iterable<T> collection, Function<? super T, K> keytransformation) {
 		return map(collection, keytransformation, new NoTransformation<T>());
 	}
 
-	public static <K, V, T> Map<K, V> map(Collection<T> collection, Function<? super T, K> keyTransformation,
+	public static <K, V, T> Map<K, V> map(Iterable<T> collection, Function<? super T, K> keyTransformation,
 			Function<? super T, V> valueTransformation) {
 		return map(MapCreators.<K, V> hashMap(), collection, keyTransformation, valueTransformation);
 	}
 
-	public static <K, V, T> Map<K, V> map(Collection<T> collection, Function<? super T, K> keyTransformation,
+	public static <K, V, T> Map<K, V> map(Iterable<T> collection, Function<? super T, K> keyTransformation,
 			Foldleft<? super T, V> valueFold) {
 		return map(MapCreators.<K, V> hashMap(), collection, keyTransformation, valueFold);
 	}
 
-	public static <K extends Enum<K>, T> EnumMap<K, T> map(Class<K> enumType, Collection<T> collection,
+	public static <K extends Enum<K>, T> EnumMap<K, T> map(Class<K> enumType, Iterable<T> collection,
 			Function<? super T, K> keytransformation) {
 		return map(enumType, collection, keytransformation, new NoTransformation<T>());
 	}
 
-	public static <K extends Enum<K>, V, T> EnumMap<K, V> map(Class<K> enumType, Collection<T> collection,
+	public static <K extends Enum<K>, V, T> EnumMap<K, V> map(Class<K> enumType, Iterable<T> collection,
 			Function<? super T, K> keyTransformation, Function<? super T, V> valueTransformation) {
 		return map(MapCreators.<K, V> enumMap(enumType), collection, keyTransformation, valueTransformation);
 	}
 
-	public static <K extends Enum<K>, V, T> EnumMap<K, V> map(Class<K> enumType, Collection<T> collection,
+	public static <K extends Enum<K>, V, T> EnumMap<K, V> map(Class<K> enumType, Iterable<T> collection,
 			Function<? super T, K> keyTransformation, Foldleft<? super T, V> valueFold) {
 		return map(MapCreators.<K, V> enumMap(enumType), collection, keyTransformation, valueFold);
 	}
 
-	private static <K, V, T, M extends Map<K, V>> M map(MapCreator<K, V, M> mapCreator, Collection<T> collection,
+	private static <K, V, T, M extends Map<K, V>> M map(MapCreator<K, V, M> mapCreator, Iterable<T> collection,
 			Function<? super T, K> keyTransformation, Function<? super T, V> valueTransformation) {
 		return map(mapCreator, collection, keyTransformation, new Folds.ValueFromLeftIllegalFold<T, V>(valueTransformation));
 	}
 
-	private static <K, V, T, M extends Map<K, V>> M map(MapCreator<K, V, M> mapCreator, Collection<T> collection,
+	private static <K, V, T, M extends Map<K, V>> M map(MapCreator<K, V, M> mapCreator, Iterable<T> collection,
 			Function<? super T, K> keyTransformation, Foldleft<? super T, V> valueFold) {
 		M map = mapCreator.newInstance();
 		for (T value : collection) {
@@ -130,9 +132,15 @@ public abstract class Transformations {
 		};
 	}
 
+	public static <T> Iterable<T> firstOf(Iterable<T> collections, int items) {
+		Preconditions.checkArgument(items > 0, "items must be bigger then 0");
+//	return Lists.newArrayList(collections).subList(0, Math.min(collections.size(), items));
+		return FluentIterable.from(collections).limit(items);
+	}
+
 	public static <T> Collection<T> firstOf(Collection<T> collections, int items) {
 		Preconditions.checkArgument(items > 0, "items must be bigger then 0");
-		return Lists.newArrayList(collections).subList(0, Math.min(collections.size(), items));
+		return Lists.newArrayList(firstOf((Iterable<T>) collections, items));
 	}
 
 	public static <T> Optional<T> firstOf(Collection<T> collections) {
@@ -154,11 +162,11 @@ public abstract class Transformations {
 		return new Partition<T>(asList.subList(0, index), asList.subList(index, asList.size()));
 	}
 
-	public static <A,B> Collection<Pair<A,B>> zip(Iterable<A> a, Iterable<B> b) {
+	public static <A,B> ImmutableList<Pair<A,B>> zip(Iterable<A> a, Iterable<B> b) {
 		return zip(a.iterator(),b.iterator());
 	}
 	
-	public static <A,B> Collection<Pair<A,B>> zip(Iterator<A> a, Iterator<B> b) {
+	public static <A,B> ImmutableList<Pair<A,B>> zip(Iterator<A> a, Iterator<B> b) {
 		Preconditions.checkNotNull(a,"a is null");
 		Preconditions.checkNotNull(b,"b is null");
 		
@@ -169,7 +177,7 @@ public abstract class Transformations {
 			boolean aNext=a.hasNext();
 			boolean bNext=b.hasNext();
 			if (aNext  && bNext) {
-				builder.add(new Pair(a.next(),b.next()));
+				builder.add(new Pair<A,B>(a.next(),b.next()));
 				pos++;
 			} else {
 				if ((aNext) || (bNext)) {

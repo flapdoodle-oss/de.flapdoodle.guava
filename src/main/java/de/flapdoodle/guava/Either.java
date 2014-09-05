@@ -89,7 +89,7 @@ public abstract class Either<L, R> implements Serializable {
 				return false;
 			if (getClass() != obj.getClass())
 				return false;
-			Left other = (Left) obj;
+			Left<?,?> other = (Left<?,?>) obj;
 			if (value == null) {
 				if (other.value != null)
 					return false;
@@ -143,7 +143,7 @@ public abstract class Either<L, R> implements Serializable {
 				return false;
 			if (getClass() != obj.getClass())
 				return false;
-			Right other = (Right) obj;
+			Right<?,?> other = (Right<?,?>) obj;
 			if (value == null) {
 				if (other.value != null)
 					return false;
