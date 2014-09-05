@@ -8,12 +8,12 @@ minor guava extensions
 
 ### Maven
 
-Stable (Maven Central Repository, Released: 28.08.2013 - wait 24hrs for [maven central](http://repo1.maven.org/maven2/de/flapdoodle/guava/de.flapdoodle.guava/maven-metadata.xml))
+Stable (Maven Central Repository, Released: 05.09.2013 - wait 24hrs for [maven central](http://repo1.maven.org/maven2/de/flapdoodle/guava/de.flapdoodle.guava/maven-metadata.xml))
 
 	<dependency>
 		<groupId>de.flapdoodle.guava</groupId>
 		<artifactId>de.flapdoodle.guava</artifactId>
-		<version>1.3.7</version>
+		<version>1.4.0</version>
 	</dependency>
 
 Snapshots (Repository http://oss.sonatype.org/content/repositories/snapshots)
@@ -21,7 +21,7 @@ Snapshots (Repository http://oss.sonatype.org/content/repositories/snapshots)
 	<dependency>
 		<groupId>de.flapdoodle.guava</groupId>
 		<artifactId>de.flapdoodle.guava</artifactId>
-		<version>1.3.8-SNAPSHOT</version>
+		<version>1.4.1-SNAPSHOT</version>
 	</dependency>
 
 ### Usage

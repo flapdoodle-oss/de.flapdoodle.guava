@@ -33,8 +33,9 @@ public class FlatterTest {
 				.add(new A("a2", ImmutableList.of(new B("b3", ImmutableList.of(new C("c4"))),new B("b4", ImmutableList.of(new C("c5"), new C("c6"))))))
 				.add(new A("a3", ImmutableList.of(new B("b5", ImmutableList.<C> of())))).build();
 
-		FluentIterable<Flat<Flat<A, B>, C>> result = FluentIterable.from(a).transformAndConcat(Flatter.flat(A.asSub)).transformAndConcat(
-			Flatter.<A, B, C> flatted(B.asSub));
+		FluentIterable<Flat<Flat<A, B>, C>> result = FluentIterable.from(a)
+				.transformAndConcat(Flatter.flat(A.asSub))
+				.transformAndConcat(Flatter.<A, B, C> flatted(B.asSub));
 
 		ImmutableList<Flat<Flat<A, B>, C>> asList = ImmutableList.copyOf(result);
 		assertEquals(6, asList.size());
