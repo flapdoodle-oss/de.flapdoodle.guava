@@ -16,11 +16,31 @@
  */
 package de.flapdoodle.guava;
 
+import com.google.common.base.Function;
+
+import de.flapdoodle.guava.functions.BiFunction;
+
 /**
  *
  * @author mmosmann
  */
 public class Pair<A,B> {
+	static class PairToKey<K> implements Function<Pair<K, ?>, K> {
+	
+		@Override
+		public K apply(Pair<K, ?> input) {
+			return input.a();
+		}
+	}
+
+	static class PairToValue<V> implements Function<Pair<?, V>, V> {
+	
+		@Override
+		public V apply(Pair<?, V> input) {
+			return input.b();
+		}
+	}
+
 	private final A a;
 	private final B b;
 
@@ -81,5 +101,31 @@ public class Pair<A,B> {
 		return true;
 	}
 	
+    public static <AS,B,AD> com.google.common.base.Function<Pair<AS,B>, Pair<AD,B>> mapA(final Function<AS, AD> map) {
+    	return new Function<Pair<AS, B>, Pair<AD, B>>() {
+			@Override
+			public Pair<AD, B> apply(Pair<AS, B> pair) {
+				return of(map.apply(pair.a()), pair.b());
+			}
+		};
+    }
+    
+    public static <A,BS,BD> Function<Pair<A,BS>, Pair<A,BD>> mapB(final Function<BS, BD> map) {
+    	return new Function<Pair<A, BS>, Pair<A, BD>>() {
+			@Override
+			public Pair<A, BD> apply(Pair<A, BS> pair) {
+				return of(pair.a(), map.apply(pair.b()));
+			}
+		};
+    }
+
+	public static <A,B> BiFunction<A, B, Pair<A,B>> asBiFunction() {
+		return new BiFunction<A, B, Pair<A,B>>() {
+
+			@Override
+			public Pair<A, B> apply(A a, B b) {
+				return Pair.of(a, b);
+			}};
+	}
 	
 }

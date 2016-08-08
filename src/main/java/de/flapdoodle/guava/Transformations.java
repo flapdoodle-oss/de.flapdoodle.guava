@@ -19,6 +19,7 @@ package de.flapdoodle.guava;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -30,14 +31,13 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ForwardingIterator;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.UnmodifiableIterator;
 
+import de.flapdoodle.guava.functions.BiFunction;
 import de.flapdoodle.guava.functions.NoTransformation;
 import de.flapdoodle.guava.functions.ValueToCollection;
-import java.util.Iterator;
 
 public abstract class Transformations {
 
@@ -75,7 +75,7 @@ public abstract class Transformations {
 	}
 
 	public static <K, V> Map<K, V> map(Iterable<Pair<K, V>> pairs) {
-		return map(pairs, new PairToKey<K>(),new PairToValue<V>());
+		return map(pairs, new Pair.PairToKey<K>(),new Pair.PairToValue<V>());
 	}
 	
 	public static <K, T> Map<K, T> map(Iterable<T> collection, Function<? super T, K> keytransformation) {
@@ -162,31 +162,50 @@ public abstract class Transformations {
 		return new Partition<T>(asList.subList(0, index), asList.subList(index, asList.size()));
 	}
 
+	@Deprecated
+	@InlineCallToReplaceDeprecatedFunction
 	public static <A,B> ImmutableList<Pair<A,B>> zip(Iterable<A> a, Iterable<B> b) {
 		return zip(a.iterator(),b.iterator());
 	}
-	
+
+	@Deprecated
+	@InlineCallToReplaceDeprecatedFunction
 	public static <A,B> ImmutableList<Pair<A,B>> zip(Iterator<A> a, Iterator<B> b) {
+		return ImmutableList.copyOf(zip(a,b,Pair.<A,B>asBiFunction()));
+	}
+	
+	public static <A,B,C> Iterable<C> zip(final Iterator<A> a, final Iterator<B> b, final BiFunction<A, B, C> zipper) {
 		Preconditions.checkNotNull(a,"a is null");
 		Preconditions.checkNotNull(b,"b is null");
 		
-		final ImmutableList.Builder<Pair<A, B>> builder = ImmutableList.<Pair<A,B>>builder();
-		int pos=0;
-		boolean done=false;
-		do {
-			boolean aNext=a.hasNext();
-			boolean bNext=b.hasNext();
-			if (aNext  && bNext) {
-				builder.add(new Pair<A,B>(a.next(),b.next()));
-				pos++;
-			} else {
-				if ((aNext) || (bNext)) {
-					throw new IndexOutOfBoundsException("no element in "+(aNext?"a":"b")+" found at "+pos);
-				}
-				done=true;
+		return new Iterable<C>() {
+
+			@Override
+			public Iterator<C> iterator() {
+				return new UnmodifiableIterator<C>() {
+
+					int pos=0;
+					
+					@Override
+					public boolean hasNext() {
+						boolean aNext=a.hasNext();
+						boolean bNext=b.hasNext();
+						if (aNext!=bNext) {
+							throw new IndexOutOfBoundsException("no element in "+(aNext?"a":"b")+" found at "+pos);
+						}
+						return aNext && bNext;
+					}
+
+					@Override
+					public C next() {
+						pos++;
+						return zipper.apply(a.next(),b.next());
+					}
+					
+				};
 			}
-		} while (!done);
-		return builder.build();
+			
+		};
 	}
 
 	public static <V> Function<V, V> noop() {
@@ -199,21 +218,5 @@ public abstract class Transformations {
 
 	public static <S, D> Function<S, Collection<? extends D>> asCollection(Function<S, D> transformation) {
 		return Functions.compose(new ValueToCollection<D>(), transformation);
-	}
-
-	private static class PairToKey<K> implements Function<Pair<K, ?>, K> {
-
-		@Override
-		public K apply(Pair<K, ?> input) {
-			return input.a();
-		}
-	}
-
-	private static class PairToValue<V> implements Function<Pair<?, V>, V> {
-
-		@Override
-		public V apply(Pair<?, V> input) {
-			return input.b();
-		}
 	}
 }
