@@ -32,7 +32,7 @@ public class FluentMapTest {
 		
 		ImmutableMap<Integer, String> inversedMap = FluentMap.from(source)
 			.inverse()
-			.build();
+			.asImmutable();
 		
 		assertEquals("{2=foo, 17=bar}", inversedMap.toString());
 	}
@@ -44,7 +44,7 @@ public class FluentMapTest {
 		
 		ImmutableMap<String, String> result = FluentMap.from(source)
 			.transformValues(second)
-			.build();
+			.asImmutable();
 		
 		assertEquals("{foo=zwei}", result.toString());
 	}

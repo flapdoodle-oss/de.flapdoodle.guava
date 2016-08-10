@@ -18,6 +18,7 @@ package de.flapdoodle.guava.maps;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -25,7 +26,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
-public class FluentMap<K,V> {
+public class FluentMap<K,V> implements Map<K, V> {
 
 	private final Map<K, V> map;
 
@@ -72,12 +73,77 @@ public class FluentMap<K,V> {
 		});
 	}
 	
-	public ImmutableMap<K, V> build() {
+	public ImmutableMap<K, V> asImmutable() {
 		return ImmutableMap.copyOf(map);
 	}
 
 	public static <K,V> FluentMap<K,V> from(Map<K,V> source) {
 		return new FluentMap<>(source);
+	}
+
+	
+	@Override
+	public int size() {
+		return map.size();
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return map.isEmpty();
+	}
+
+	@Override
+	public boolean containsKey(Object key) {
+		return map.containsKey(key);
+	}
+
+	@Override
+	public boolean containsValue(Object value) {
+		return map.containsValue(value);
+	}
+
+	@Override
+	public V get(Object key) {
+		return map.get(key);
+	}
+
+	@Override
+	@Deprecated
+	public V put(K key, V value) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	@Deprecated
+	public V remove(Object key) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	@Deprecated
+	public void putAll(Map<? extends K, ? extends V> m) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	@Deprecated
+	public void clear() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Set<K> keySet() {
+		return map.keySet();
+	}
+
+	@Override
+	public Collection<V> values() {
+		return map.values();
+	}
+
+	@Override
+	public Set<java.util.Map.Entry<K, V>> entrySet() {
+		return map.entrySet();
 	}
 
 }
