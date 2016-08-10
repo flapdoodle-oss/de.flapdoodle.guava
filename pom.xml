@@ -8,7 +8,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>de.flapdoodle.guava</groupId>
+    <groupId>de.flapdoodle.guava-java8</groupId>
     <artifactId>de.flapdoodle.guava</artifactId>
     <name>Flapdoodle Guava Extensions</name>
     <version>1.4.2-SNAPSHOT</version>
@@ -51,7 +51,7 @@
                 <configuration>
                     <toolchains>
                         <jdk>
-                            <version>[1.7]</version>
+                            <version>[1.8,)</version>
                         </jdk>
                     </toolchains>
                 </configuration>
@@ -60,11 +60,18 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.5.1</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <compilerVersion>1.8</compilerVersion>
+                    <source>1.8</source>
+                    <target>1.8</target>
                     <encoding>UTF-8</encoding>
-                    <optimize>true</optimize>
-                    <debug>true</debug>
+                    <showWarnings>true</showWarnings>
+                    <showDeprecation>true</showDeprecation>
+                    <fork>true</fork>
+                    <compilerArgs>
+                        <arg>-Xlint</arg>
+                    </compilerArgs>
+                    <!-- Prevents an endPosTable exception during compilation -->
+                    <useIncrementalCompilation>false</useIncrementalCompilation>
                 </configuration>
             </plugin>
             <plugin>
@@ -304,6 +311,24 @@
      </build>
 
     <profiles>
+	  <profile>
+	    <id>doclint-java8-disable</id>
+	    <activation>
+	      <jdk>[1.8,)</jdk>
+	    </activation>
+
+	    <build>
+	      <plugins>
+		<plugin>
+		  <groupId>org.apache.maven.plugins</groupId>
+		  <artifactId>maven-javadoc-plugin</artifactId>
+		  <configuration>
+		    <additionalparam>-Xdoclint:none</additionalparam>
+		  </configuration>
+		</plugin>
+	      </plugins>
+	    </build>
+	  </profile>
         <profile>
             <id>release-sign-artifacts</id>
             <activation>
