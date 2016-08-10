@@ -26,7 +26,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
-public class FluentMap<K,V> implements Map<K, V> {
+public class FluentMap<K,V> implements UnmodifiableMap<K, V> {
 
 	private final Map<K, V> map;
 
@@ -51,26 +51,11 @@ public class FluentMap<K,V> implements Map<K, V> {
 	}
 
 	public FluentMap<V, K> inverse() {
-		return from(FluentIterable.from(map.keySet()).uniqueIndex(new Function<K, V>() {
-			@Override
-			public V apply(K k) {
-				return map.get(k);
-			}
-		}));
+		return from(FluentIterable.from(map.keySet()).uniqueIndex(k -> map.get(k)));
 	}
 	
 	public <K2,V2> FluentMap<K,V2> transformValues(final Map<V, V2> other) {
-		return filterValues(new Predicate<V>() {
-			@Override
-			public boolean apply(V v) {
-				return other.containsKey(v);
-			}
-		}).transformValues(new Function<V, V2>() {
-			@Override
-			public V2 apply(V v) {
-				return other.get(v);
-			}
-		});
+		return filterValues(v -> other.containsKey(v)).transformValues(v -> other.get(v));
 	}
 	
 	public ImmutableMap<K, V> asImmutable() {
@@ -105,30 +90,6 @@ public class FluentMap<K,V> implements Map<K, V> {
 	@Override
 	public V get(Object key) {
 		return map.get(key);
-	}
-
-	@Override
-	@Deprecated
-	public V put(K key, V value) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	@Deprecated
-	public V remove(Object key) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	@Deprecated
-	public void putAll(Map<? extends K, ? extends V> m) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	@Deprecated
-	public void clear() {
-		throw new UnsupportedOperationException();
 	}
 
 	@Override

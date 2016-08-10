@@ -22,6 +22,7 @@ import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
@@ -35,7 +36,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.UnmodifiableIterator;
 
-import de.flapdoodle.guava.functions.BiFunction;
 import de.flapdoodle.guava.functions.NoTransformation;
 import de.flapdoodle.guava.functions.ValueToCollection;
 
@@ -61,13 +61,7 @@ public abstract class Transformations {
 	}
 
 	public static <T> ImmutableList<? extends T> flatmap(Collection<? extends Collection<? extends T>> collections) {
-		return flatmap(collections, new Function<Collection<? extends T>, Collection<? extends T>>() {
-
-			@Override
-			public Collection<? extends T> apply(Collection<? extends T> input) {
-				return input;
-			}
-		});
+		return flatmap(collections, input -> input);
 	}
 	
 	public static <T> ImmutableList<? extends T> flatmap(Collection<? extends T> collection, Collection<? extends T> otherCollection, Collection<? extends T>... collections) {
@@ -75,7 +69,7 @@ public abstract class Transformations {
 	}
 
 	public static <K, V> Map<K, V> map(Iterable<Pair<K, V>> pairs) {
-		return map(pairs, new Pair.PairToKey<K>(),new Pair.PairToValue<V>());
+		return map(pairs, Pair::a,Pair::b);
 	}
 	
 	public static <K, T> Map<K, T> map(Iterable<T> collection, Function<? super T, K> keytransformation) {
@@ -94,7 +88,7 @@ public abstract class Transformations {
 
 	public static <K extends Enum<K>, T> EnumMap<K, T> map(Class<K> enumType, Iterable<T> collection,
 			Function<? super T, K> keytransformation) {
-		return map(enumType, collection, keytransformation, new NoTransformation<T>());
+		return map(enumType, collection, keytransformation, x -> x);
 	}
 
 	public static <K extends Enum<K>, V, T> EnumMap<K, V> map(Class<K> enumType, Iterable<T> collection,
@@ -178,31 +172,24 @@ public abstract class Transformations {
 		Preconditions.checkNotNull(a,"a is null");
 		Preconditions.checkNotNull(b,"b is null");
 		
-		return new Iterable<C>() {
+		return () -> new UnmodifiableIterator<C>() {
+
+			int pos=0;
+			
+			@Override
+			public boolean hasNext() {
+				boolean aNext=a.hasNext();
+				boolean bNext=b.hasNext();
+				if (aNext!=bNext) {
+					throw new IndexOutOfBoundsException("no element in "+(aNext?"a":"b")+" found at "+pos);
+				}
+				return aNext && bNext;
+			}
 
 			@Override
-			public Iterator<C> iterator() {
-				return new UnmodifiableIterator<C>() {
-
-					int pos=0;
-					
-					@Override
-					public boolean hasNext() {
-						boolean aNext=a.hasNext();
-						boolean bNext=b.hasNext();
-						if (aNext!=bNext) {
-							throw new IndexOutOfBoundsException("no element in "+(aNext?"a":"b")+" found at "+pos);
-						}
-						return aNext && bNext;
-					}
-
-					@Override
-					public C next() {
-						pos++;
-						return zipper.apply(a.next(),b.next());
-					}
-					
-				};
+			public C next() {
+				pos++;
+				return zipper.apply(a.next(),b.next());
 			}
 			
 		};

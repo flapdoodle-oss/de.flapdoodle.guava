@@ -16,7 +16,11 @@
  */
 package de.flapdoodle.guava;
 
-public interface Foldleft<R, L> {
+import java.util.function.BiFunction;
 
+@FunctionalInterface
+public interface Foldleft<R, L> extends BiFunction<L, R, L> {
+
+	@Override
 	L apply(L left, R right);
 }

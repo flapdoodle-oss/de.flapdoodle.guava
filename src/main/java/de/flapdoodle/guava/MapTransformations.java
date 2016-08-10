@@ -16,9 +16,11 @@
  */
 package de.flapdoodle.guava;
 
-import com.google.common.base.Function;
-import de.flapdoodle.guava.functions.NoTransformation;
 import java.util.Map;
+
+import com.google.common.base.Function;
+
+import de.flapdoodle.guava.functions.NoTransformation;
 
 public abstract class MapTransformations {
 
@@ -28,13 +30,7 @@ public abstract class MapTransformations {
 
 	public static <S, D, V, M> Map<D, M> transform(Map<S, V> map, final Function<? super S, D> keytransformation,
 					final Foldleft<? super V, M> valuetransformation) {
-		return Transformations.map(map.entrySet(), new Function<Map.Entry<S, V>, D>() {
-
-			@Override
-			public D apply(Map.Entry<S, V> input) {
-				return keytransformation.apply(input.getKey());
-			}
-		}, new Foldleft<Map.Entry<S, V>, M>() {
+		return Transformations.map(map.entrySet(), input -> keytransformation.apply(input.getKey()), new Foldleft<Map.Entry<S, V>, M>() {
 
 			@Override
 			public M apply(M left, Map.Entry<S, V> right) {

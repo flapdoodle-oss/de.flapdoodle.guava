@@ -18,12 +18,13 @@ package de.flapdoodle.guava.functions;
 
 import java.util.Collection;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 
+@Deprecated
 public final class ValueToCollection<V> implements Function<V, Collection<? extends V>> {
 
-    public java.util.Collection<? extends V> apply(V input) {
+    @Override
+	public java.util.Collection<? extends V> apply(V input) {
         return ImmutableList.of(input);
     }
 }

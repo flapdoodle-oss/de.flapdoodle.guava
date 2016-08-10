@@ -21,6 +21,7 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 
+@Deprecated
 public abstract class MapCreators {
 
 	private MapCreators() {
@@ -28,44 +29,14 @@ public abstract class MapCreators {
 	}
 
 	public static <K extends Enum<K>, V> MapCreator<K, V, EnumMap<K, V>> enumMap(Class<K> type) {
-		return new EnumMapCreator<K, V>(type);
+		return () -> Maps.newEnumMap(type);
 	}
 
 	public static <K, V> MapCreator<K, V, Map<K, V>> hashMap() {
-		return new HashMapCreator<K, V>();
+		return () -> Maps.newHashMap();
 	}
 
 	public static <K, V> MapCreator<K, V, Map<K, V>> linkedHashMap() {
-		return new LinkedHashMapCreator<K, V>();
-	}
-
-	private static final class EnumMapCreator<K extends Enum<K>, V> implements MapCreator<K, V, EnumMap<K, V>> {
-
-		private final Class<K> type;
-
-		EnumMapCreator(Class<K> type) {
-			this.type = type;
-		}
-
-		@Override
-		public final EnumMap<K, V> newInstance() {
-			return Maps.newEnumMap(this.type);
-		}
-	}
-
-	private static final class LinkedHashMapCreator<K, V> implements MapCreator<K, V, Map<K, V>> {
-
-		@Override
-		public final Map<K, V> newInstance() {
-			return Maps.newLinkedHashMap();
-		}
-	}
-
-	private static final class HashMapCreator<K, V> implements MapCreator<K, V, Map<K, V>> {
-
-		@Override
-		public final Map<K, V> newInstance() {
-			return Maps.newHashMap();
-		}
+		return () -> Maps.newLinkedHashMap();
 	}
 }

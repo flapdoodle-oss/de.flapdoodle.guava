@@ -18,6 +18,7 @@ package de.flapdoodle.guava;
 
 import java.util.Map;
 
+@FunctionalInterface
 interface MapCreator<K, V, M extends Map<K, V>> {
 
 	M newInstance();

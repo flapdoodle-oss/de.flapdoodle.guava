@@ -16,8 +16,8 @@
  */
 package de.flapdoodle.guava.functions;
 
-import com.google.common.base.Function;
 
+@Deprecated
 public final class NoTransformation<T> implements Function<T, T> {
 
     @Override
