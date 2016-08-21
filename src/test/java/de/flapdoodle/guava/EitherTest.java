@@ -20,6 +20,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import com.google.common.base.Function;
+
 import de.flapdoodle.guava.Either.Left;
 import de.flapdoodle.guava.Either.Right;
 
@@ -98,5 +100,83 @@ public class EitherTest {
 	@Test(expected=NullPointerException.class)
 	public void rightGetLeftValueShouldFail() {
 		Either.leftOrRight(null, "B").left();
+	}
+	
+	@Test
+	public void mapLeftShouldMapValueOnlyIfLeft() {
+		assertEquals("12", Either.left(12L).mapLeft(new Function<Long, String>() {
+
+			@Override
+			public String apply(Long input) {
+				return ""+input;
+			}
+		}).left());
+		
+		assertEquals(Long.valueOf(12L), Either.<Long, String>left(12L).mapRight(new Function<String, String>() {
+
+			@Override
+			public String apply(String input) {
+				throw new IllegalArgumentException("should not be called");
+			}
+		}).left());
+	}
+	
+	@Test
+	public void flatmapLeftShouldMapValueOnlyIfLeft() {
+		assertEquals("12", Either.<Long, String>left(12L).flatmapLeft(new Function<Long, Either<Long, String>>() {
+
+			@Override
+			public Either<Long, String> apply(Long input) {
+				return Either.right(""+input);
+			}
+
+		}).right());
+		
+		assertEquals("12", Either.<Long, String>right("12").flatmapLeft(new Function<Long, Either<Long, String>>() {
+
+			@Override
+			public Either<Long, String> apply(Long input) {
+				throw new IllegalArgumentException("should not be called");
+			}
+		}).right());
+	}
+	
+	@Test
+	public void flatmapRightShouldMapValueOnlyIfLeft() {
+		assertEquals(Long.valueOf(12), Either.<String, Long>right(12L).flatmapRight(new Function<Long, Either<String, Long>>() {
+
+			@Override
+			public Either<String, Long> apply(Long input) {
+				return Either.right(input);
+			}
+
+		}).right());
+		
+		assertEquals("12", Either.<String, Long>left("12").flatmapRight(new Function<Long, Either<String, Long>>() {
+
+			@Override
+			public Either<String, Long> apply(Long input) {
+				throw new IllegalArgumentException("should not be called");
+			}
+		}).left());
+	}
+	
+	@Test
+	public void mapRightShouldMapValueOnlyIfRight() {
+		assertEquals("12", Either.right(12L).mapRight(new Function<Long, String>() {
+
+			@Override
+			public String apply(Long input) {
+				return ""+input;
+			}
+		}).right());
+		
+		assertEquals(Long.valueOf(12L), Either.<String, Long>right(12L).mapLeft(new Function<String, String>() {
+
+			@Override
+			public String apply(String input) {
+				throw new IllegalArgumentException("should not be called");
+			}
+		}).right());
 	}
 }

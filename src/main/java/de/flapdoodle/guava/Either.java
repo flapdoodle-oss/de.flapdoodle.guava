@@ -18,6 +18,8 @@ package de.flapdoodle.guava;
 
 import java.io.Serializable;
 
+import com.google.common.base.Function;
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
 public abstract class Either<L, R> implements Serializable {
@@ -28,6 +30,22 @@ public abstract class Either<L, R> implements Serializable {
 
 	public abstract R right();
 
+    public <LX> Either<LX,R> mapLeft(Function<? super L, LX> function) {
+    	return isLeft() ? Either.<LX,R>left(function.apply(left())) : Either.<LX,R>right(right());
+    }
+
+    public <LX> Either<LX,R> flatmapLeft(Function<? super L, Either<LX,R>> function) {
+    	return isLeft() ? function.apply(left()) : Either.<LX,R>right(right());
+    }
+
+    public <RX> Either<L,RX> mapRight(Function<? super R, RX> function) {
+    	return isLeft() ? Either.<L,RX>left(left()) : Either.<L,RX>right(function.apply(right()));
+    }
+
+    public <RX> Either<L,RX> flatmapRight(Function<? super R, Either<L,RX>> function) {
+    	return isLeft() ? Either.<L,RX>left(left()) : function.apply(right());
+    }
+	
 	public static <L, R> Left<L, R> left(L value) {
       return new Left<L, R>(value);
   }
@@ -53,7 +71,7 @@ public abstract class Either<L, R> implements Serializable {
 		private final L value;
 
 		public Left(L value) {
-			this.value = value;
+			this.value = Preconditions.checkNotNull(value,"value is null");
 		}
 
 		@Override
@@ -73,12 +91,7 @@ public abstract class Either<L, R> implements Serializable {
 
 		@Override
 		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((value == null)
-					? 0
-					: value.hashCode());
-			return result;
+			return Objects.hashCode(this.value);
 		}
 
 		@Override
@@ -107,7 +120,7 @@ public abstract class Either<L, R> implements Serializable {
 		private final R value;
 
 		public Right(R value) {
-			this.value = value;
+			this.value = Preconditions.checkNotNull(value,"value is null");
 		}
 
 		@Override
@@ -127,12 +140,7 @@ public abstract class Either<L, R> implements Serializable {
 
 		@Override
 		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((value == null)
-					? 0
-					: value.hashCode());
-			return result;
+			return Objects.hashCode(this.value);
 		}
 
 		@Override
