@@ -49,13 +49,7 @@ public class Try {
 		}
 		
 		public Function<T, R> recoverWith(Function<T, R> supplier) {
-			return t -> {
-				try {
-					return this.apply(t);
-				} catch (RuntimeException rx) {
-					return supplier.apply(t);
-				}
-			};
+			return recoverWith((t,ex) -> supplier.apply(t));
 		}
 
 		public Function<T, R> recoverWith(BiFunction<T, RuntimeException, R> supplier) {
