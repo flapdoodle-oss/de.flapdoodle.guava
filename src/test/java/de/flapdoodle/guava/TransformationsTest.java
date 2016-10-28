@@ -186,4 +186,31 @@ public class TransformationsTest {
 	public void asCollectionShouldGiveCollectionForValue() {
 		assertEquals("[foo]", Transformations.asCollection().apply("foo").toString());
 	}
+	
+	@Test
+	public void transposeOnEmptyMustGiveEmptyList() {
+		assertTrue(Transformations.transpose(ImmutableList.<List<String>>of()).isEmpty());
+	}
+	
+	@Test(expected=IllegalArgumentException.class)
+	public void transposeOnDifferentSubSizesMustFail() {
+		ImmutableList<ImmutableList<String>> lines = ImmutableList.<ImmutableList<String>>builder()
+				.add(ImmutableList.of("A","B","C"))
+				.add(ImmutableList.of("1","2","3"))
+				.add(ImmutableList.of("-","+"))
+				.add(ImmutableList.of("ä","ö","ü"))
+				.build();
+		Transformations.transpose(lines);
+	}
+	
+	@Test
+	public void transposeMustSwapElements() {
+		ImmutableList<ImmutableList<String>> lines = ImmutableList.<ImmutableList<String>>builder()
+			.add(ImmutableList.of("A","B","C"))
+			.add(ImmutableList.of("1","2","3"))
+			.add(ImmutableList.of("-","+","/"))
+			.add(ImmutableList.of("ä","ö","ü"))
+			.build();
+		assertEquals("[[A, 1, -, ä], [B, 2, +, ö], [C, 3, /, ü]]",Transformations.transpose(lines).toString());
+	}
 }

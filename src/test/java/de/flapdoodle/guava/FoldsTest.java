@@ -17,6 +17,7 @@
 package de.flapdoodle.guava;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 import java.util.Collection;
@@ -34,7 +35,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import de.flapdoodle.guava.Folds.CollectingFold;
-import de.flapdoodle.guava.FoldsTest.TestPair;
 
 public class FoldsTest {
 
@@ -151,7 +151,22 @@ public class FoldsTest {
 	public void enumSetFoldUseCases() {
 		foldUseCases(new Folds.EnumSetFold<DummyEnum>(DummyEnum.class), enumsetTestSet());
 	}
-
+	
+	@Test
+	public void reduceGivesNothingIfEmpty() {
+		assertFalse(Folds.reduce(ImmutableList.<Integer>of(), (l,r) -> l+r).isPresent());
+	}
+	
+	@Test
+	public void reduceGivesTheOneElementWithoutFold() {
+		assertEquals(Integer.valueOf(1),Folds.reduce(ImmutableList.of(1), (l,r) -> { if (true) throw new RuntimeException(); return l+r;}).get());
+	}
+	
+	@Test
+	public void reduceGivesSumOfAllElementsIfSumFold() {
+		assertEquals(Integer.valueOf(6),Folds.reduce(ImmutableList.of(1,2,3), (l,r) -> l+r).get());
+	}
+	
 	private <R, C extends Collection<? extends R>> void foldUseCases(CollectingFold<R, C> fold, FoldTestset<R, C> testSet) {
 		TestPair<R, C> empty = testSet.empty();
 		assertEquals("foldOfEmptyIsEmpty", empty.result(), fold.apply(empty.left(), empty.right()));
@@ -175,7 +190,7 @@ public class FoldsTest {
 
 		Optional<TestPair<String, ImmutableList<? extends String>>> colliding = Optional.<TestPair<String, ImmutableList<? extends String>>> absent();
 
-		return new FoldTestset<String, ImmutableList<? extends String>>(empty, colliding, (TestPair<String, ImmutableList<? extends String>>) TestPair.of((ImmutableList<? extends String>) ImmutableList.<String>of("foo"),
+		return new FoldTestset<String, ImmutableList<? extends String>>(empty, colliding, TestPair.of((ImmutableList<? extends String>) ImmutableList.<String>of("foo"),
 				Lists.<String> newArrayList(), ImmutableList.of("foo")), TestPair.of((ImmutableList<? extends String>) ImmutableList.<String> of(),
 				Lists.newArrayList("bar"), ImmutableList.of("bar")), TestPair.of((ImmutableList<? extends String>) ImmutableList.of("foo"),
 				Lists.newArrayList("bar"), ImmutableList.of("foo", "bar")));

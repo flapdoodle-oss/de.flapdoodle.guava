@@ -18,8 +18,10 @@ package de.flapdoodle.guava;
 
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.Iterator;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -40,6 +42,22 @@ public abstract class Folds {
 			ret = foldFunction.apply(ret, value);
 		}
 		return ret;
+	}
+	
+	public static <T> Optional<T> reduce(Iterable<? extends T> collection, Foldleft<? super T, T> foldFunction) {
+		Preconditions.checkNotNull(collection, "collection is null");
+		Preconditions.checkNotNull(foldFunction, "foldFunction is null");
+
+		Iterator<? extends T> iterator = collection.iterator();
+		if (iterator.hasNext()) {
+			T ret=iterator.next();
+			while (iterator.hasNext()) {
+				ret=foldFunction.apply(ret, iterator.next());
+			}
+			return Optional.of(ret);
+		}
+		
+		return Optional.absent();
 	}
 
 	public static <R, V> Foldleft<R, ImmutableList<? extends V>> asListFold(

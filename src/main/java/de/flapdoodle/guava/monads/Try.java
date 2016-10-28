@@ -35,7 +35,7 @@ public class Try {
 		public TryWithOnError(Function<T, R> function) {
 			this(function, ImmutableList.of(), Optional.absent());
 		}
-		
+		 
 		public TryWithOnError<T, R> onErrorThrow(OnError<T> onError) {
 			Preconditions.checkArgument(!this.onError.isPresent(),"onError already set to %s",this.onError);
 			return new TryWithOnError<T, R>(this.function, this.filters, Optional.of(onError));

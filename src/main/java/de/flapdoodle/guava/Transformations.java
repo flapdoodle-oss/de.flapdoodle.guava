@@ -31,9 +31,9 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-
-import de.flapdoodle.guava.functions.ValueToCollection;
 
 public abstract class Transformations {
 
@@ -124,7 +124,6 @@ public abstract class Transformations {
 
 	public static <T> Iterable<T> firstOf(Iterable<T> collections, int items) {
 		Preconditions.checkArgument(items > 0, "items must be bigger then 0");
-//	return Lists.newArrayList(collections).subList(0, Math.min(collections.size(), items));
 		return FluentIterable.from(collections).limit(items);
 	}
 
@@ -134,10 +133,7 @@ public abstract class Transformations {
 	}
 
 	public static <T> Optional<T> firstOf(Collection<T> collections) {
-		if (collections.isEmpty()) {
-			return Optional.absent();
-		}
-		return Optional.of(collections.iterator().next());
+		return Optional.fromNullable(Iterables.getFirst(collections, null));
 	}
 
 	public static <T> Partition<T> partition(Collection<T> collection, Predicate<? super T> filter) {
@@ -153,10 +149,32 @@ public abstract class Transformations {
 	}
 
 	public static <V> Function<V, Collection<? extends V>> asCollection() {
-		return new ValueToCollection<V>();
+		return v -> ImmutableList.of(v);
 	}
 
 	public static <S, D> Function<S, Collection<? extends D>> asCollection(Function<S, D> transformation) {
-		return Functions.compose(new ValueToCollection<D>(), transformation);
+		return Functions.compose(v -> ImmutableList.of(v), transformation);
 	}
+	
+	public static <T> ImmutableList<ImmutableList<T>> transpose(List<? extends List<T>> lines) {
+		if (lines.isEmpty()) {
+			return ImmutableList.of();
+		}
+		
+		int columns=Folds.reduce(FluentIterable.from(lines).transform(Collection::size),(l,r) -> {
+			Preconditions.checkArgument(l.equals(r),"different sizes (%s!=%s) of subcollections in %s",l,r,lines);
+			return l;
+		}).get();
+		
+		Builder<ImmutableList<T>> linesBuilder = ImmutableList.builder();
+		for (int column=0;column<columns;column++) {
+			Builder<T> columnBuilder=ImmutableList.builder();
+			for (List<T> line : lines) {
+				columnBuilder.add(line.get(column));
+			}
+			linesBuilder.add(columnBuilder.build());
+		}
+		return linesBuilder.build();
+	}
+	
 }
