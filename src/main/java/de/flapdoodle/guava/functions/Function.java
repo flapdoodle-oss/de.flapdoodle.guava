@@ -44,7 +44,11 @@ public interface Function<T,R> extends com.google.common.base.Function<T, R>,jav
         Objects.requireNonNull(after);
         return (T t) -> after.apply(apply(t));
     }
-
+    
+    default Supplier<R> asSupplier(T value) {
+    	return () -> apply(value);
+    }
+    
     public static <S,T> Function<S,T> of(Function<S, T> function) {
     	return s -> function.apply(s);
     }
