@@ -19,8 +19,9 @@ package de.flapdoodle.guava;
 import java.util.Map;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
 
-import de.flapdoodle.guava.functions.NoTransformation;
+import de.flapdoodle.guava.maps.FluentMap;
 
 public abstract class MapTransformations {
 
@@ -50,24 +51,19 @@ public abstract class MapTransformations {
 	}
 
 	public static <S, D, V> Map<D, V> transformKeys(Map<S, V> map, final Function<? super S, D> keytransformation) {
-		return transform(map, keytransformation, new NoTransformation<V>());
+		return transform(map, keytransformation, v -> v);
 	}
 
 	public static <K, V> Map<V, K> swap(Map<K, V> map) {
-		return Transformations.map(map.entrySet(), new Function<Map.Entry<K, V>, V>() {
-
-			@Override
-			public V apply(Map.Entry<K, V> input) {
-				return input.getValue();
-			}
-
-		}, new Function<Map.Entry<K, V>, K>() {
-
-			@Override
-			public K apply(Map.Entry<K, V> input) {
-				return input.getKey();
-			}
-
-		});
+		return FluentMap.from(map)
+			.inverse();
+	}
+	
+	public static <T,K,V> Map<K, V> transform(Iterable<T> src, Function<T, K> keyTransformation, Function<T, V> valueTransformation) {
+		ImmutableMap.Builder<K, V> builder=ImmutableMap.builder();
+		for (T v : src) {
+			builder.put(keyTransformation.apply(v), valueTransformation.apply(v));
+		}
+		return builder.build();
 	}
 }
