@@ -16,7 +16,9 @@
  */
 package de.flapdoodle.guava;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -179,23 +181,7 @@ public class TransformationsTest {
 		assertEquals("[A, B, C]", partition.matching().toString());
 		assertEquals("[]", partition.notMatching().toString());
 	}
-
-	@Test
-	public void zipShouldReturnPairForEachEntry() {
-		Collection<Pair<String, Integer>> result = Transformations.zip(Lists.newArrayList("A","B","C"), Lists.newArrayList(1,2,3));
-		assertEquals("[Pair[A, 1], Pair[B, 2], Pair[C, 3]]",result.toString());
-	}
 	
-	@Test(expected = IndexOutOfBoundsException.class)
-	public void zipShouldFailIfUnequalSizedCollections() {
-		Transformations.zip(Lists.newArrayList("A","B","C"), Lists.newArrayList(1,2));
-	}
-	
-	@Test
-	public void noopShouldDoNothing() {
-		assertEquals("foo", Transformations.noop().apply("foo"));
-	}
-
 	@Test
 	public void asCollectionShouldGiveCollectionForValue() {
 		assertEquals("[foo]", Transformations.asCollection().apply("foo").toString());
